@@ -1,0 +1,46 @@
+You are localizing the skill contents responsible for a suspicious action in an
+agent skill set. The action was identified by failure/success coverage analysis
+of repeated task executions.
+
+## Suspicious action and its execution contexts (JSON)
+
+Each occurrence records the run, outcome, step, states before/after, the action
+text, and the skills/files the agent had consulted (`skills_used`, `files_read`).
+`introduces_error`/`error_reason` are the per-occurrence error judgments already
+made on that occurrence (null when the run was not judged); a run outcome of
+"success" does not mean the step was error-free.
+
+$action_json
+
+## Skill set overview
+
+Per skill: its SKILL.md and the list of its artifacts. Artifact paths are
+relative to the skill directory root, e.g. `skill_name/reference/doc.md`.
+
+$skill_overview
+
+## Mode-specific input
+
+$candidates
+
+## Your task
+
+Mode: $mode
+
+- In `artifacts` mode: the input above lists the skill files the agent consulted
+  in the evidence runs (`skills_used`/`files_read`). Using them, the action's
+  occurrences, and the skill overview, choose the artifacts whose contents may
+  guide this action (usually 1-3 files; consult the overview, not just the
+  consulted list). Return:
+  {"locations": [{"skill": "<skill name>", "artifact": "<path inside the skill>"}],
+    "rationale": "..."}
+- In `lines` mode: the candidate contents above are line-numbered (`NNNN|`).
+  Compare the prescribed actions and applicability conditions in those contents
+  with the suspicious action: find where the guidance prescribes unsuitable
+  actions, omits necessary conditions, or conflicts with related contents. Cite
+  the line ranges that would need revision; one action may require coordinated
+  sites across several skills or artifacts. Return:
+  {"locations": [{"skill": "...", "artifact": "...", "lines": [<start>, <end>]}],
+   "rationale": "how these contents led to the suspicious action"}
+
+Return only the JSON object.
