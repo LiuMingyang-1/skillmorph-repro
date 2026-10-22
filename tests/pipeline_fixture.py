@@ -1,11 +1,9 @@
-"""Shared fixture for the offline pipeline tests: fake client + teaching data.
+"""流水线离线测试共用的夹具：fake 客户端和示例数据。
 
-Story the fixture tells: two tasks exercise an "open a second in-memory
-sqlite connection" action. It appears in two failed runs and in one
-successful run where its (scripted) error-introduction judgment is true —
-the suspicious action — while other actions split good/bad occurrences
-across runs. All LLM replies here are scripted: they prove the wiring,
-not what a real model would decide.
+夹具场景：两个任务都执行了“再打开一个内存 sqlite 连接”这一动作。该动作出现在
+两次失败运行中，也出现在一次成功运行中；预设判断将其标记为引入错误，因此它是
+可疑动作。其他动作则在不同运行中同时出现正常和异常情况。这里的所有 LLM 回复
+均为脚本预设，用来验证调用链路，不代表真实模型会作出相同判断。
 """
 
 import json
@@ -21,7 +19,7 @@ DB_MD = (
     "# Connections\n\n"
     "Line about imports.\n"
     "Line about queries.\n"
-    "Open a new connection per operation.\n"   # the flawed rule (line 4)
+    "Open a new connection per operation.\n"   # 对应有问题的规则（第 4 行）。
 )
 NEW_DB_MD = (
     "# Connections\n\n"
@@ -33,7 +31,7 @@ NEW_DB_MD = (
 
 
 def _embedded_json(text):
-    """Pull the one JSON payload embedded in a substituted prompt."""
+    """提取替换后 prompt 中嵌入的 JSON 数据。"""
     for marker in ('{"proposals"', '{"action_id"'):
         i = text.find(marker)
         if i >= 0:
@@ -42,8 +40,9 @@ def _embedded_json(text):
 
 
 class FakePipelineClient:
-    """Routes each chat call by prompt markers; serves canned abstractions
-    positionally and derives everything else from the request content."""
+    """根据 prompt 标记路由每次 chat 调用；按顺序提供预设的抽象结果，
+    其他数据均从请求内容中生成。
+    """
 
     def __init__(self, abstractions):
         self._abstract = list(abstractions)
@@ -67,9 +66,9 @@ class FakePipelineClient:
             action = re.search(
                 r'Judge the action at step \d+: "(.*)"', text
             ).group(1)
-            # Scripted judge: only opening the second :memory: connection is
-            # marked error-introducing; querying it merely reveals the empty
-            # database it produced.
+            # 预设的判断结果：只有打开第二个 :memory: 连接这一动作被
+            # 标记为引入错误；查询该连接只是暴露了它生成的空
+            # 数据库。
             err = action in (
                 "open second in-memory connection",
                 "open a second in-memory connection",
@@ -77,8 +76,8 @@ class FakePipelineClient:
             return self._reply({"introduces_error": err, "reason": "fake"})
         if "Mode: artifacts" in text:
             payload = _embedded_json(text)
-            # Only the second-connection actions are suspicious: the skill's
-            # flawed "new connection per operation" rule is what they blame.
+            # 只有第二次连接相关的动作可疑：测试将问题归因于 Skill 中
+            # 有缺陷的“每次操作都新建连接”规则。
             locs = (
                 [{"skill": "sqlite-memory",
                   "artifact": "reference/connections.md"}]
@@ -113,8 +112,8 @@ class FakePipelineClient:
         raise AssertionError(f"unexpected LLM call: {text[:120]}")
 
     def _embed(self, model, input):
-        # Synonymous pair shares a fixed axis (cosine distance 0 -> one
-        # cluster); every other text gets an orthogonal axis (distance 1).
+        # 一对同义文本共用一个固定向量轴（余弦距离为 0，因此归入同一
+        # 聚类）；其他文本使用彼此正交的向量轴（距离为 1）。
         data = []
         for i, text in enumerate(input):
             vec = [0.0] * (len(input) + 1)
@@ -170,7 +169,7 @@ RUNS = [
          ("conn A: select from users", "rows returned"))},
 ]
 
-# Abstraction replies in run order; each raw step covered exactly once.
+# 抽象阶段的回复按运行顺序排列；每个原始步骤恰好覆盖一次。
 ABSTRACTIONS = [
     {"transitions": [
         _tr([0, 1], "create table documents via connection A",
@@ -206,7 +205,7 @@ ABSTRACTIONS = [
     ]},
 ]
 
-# Clean all-success input for the no-change test.
+# 全部成功且无需修改的测试输入。
 RUNS_ALL_SUCCESS = [
     {"task_id": "t1", "run_id": "r1", "task": "doc store",
      "outcome": "success",
@@ -230,7 +229,7 @@ ABSTRACTIONS_ALL_SUCCESS = [
 
 
 def make_experiment(tmp_path, runs):
-    """Create a minimal experiment dir: data + copied prompts + one skill."""
+    """创建最简实验目录：包含数据、复制的 prompt 和一个 Skill。"""
     exp = tmp_path / "exp"
     (exp / "data").mkdir(parents=True)
     (exp / "data" / "trajectories.json").write_text(json.dumps(runs))
@@ -243,7 +242,7 @@ def make_experiment(tmp_path, runs):
 
 
 def tree_snapshot(root):
-    """{relative_path: content} for every file under root."""
+    """返回 root 下所有文件的 {relative_path: content}。"""
     root = Path(root)
     return {
         str(p.relative_to(root)): p.read_text()

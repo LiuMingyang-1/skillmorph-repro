@@ -1,8 +1,8 @@
-"""Skill-tree IO helpers shared by the revision stages.
+"""修订阶段共用的 Skill 目录树输入输出辅助函数。
 
-A skill set lives under `skill_dir` as `skill_dir/<skill>/<artifact>`; artifact
-paths may nest (`reference/node_mcp_server.md`). Files are addressed everywhere
-by that relative path.
+Skill 集合位于 `skill_dir` 下，路径形式为 `skill_dir/<skill>/<artifact>`；资源
+路径可以包含子目录（例如 `reference/node_mcp_server.md`）。各处均使用该相对路径
+来引用文件。
 """
 
 import shutil
@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 def read_skill_tree(skill_dir):
-    """Read every file under skill_dir into {relative_path: content}."""
+    """读取 skill_dir 下的所有文件，返回 {relative_path: content}。"""
     skill_dir = Path(skill_dir)
     return {
         str(path.relative_to(skill_dir)): path.read_text()
@@ -20,12 +20,12 @@ def read_skill_tree(skill_dir):
 
 
 def copy_skill_tree(skill_dir, output_dir):
-    """Copy the input skill tree to output_dir; the input is never modified."""
+    """将输入 Skill 目录树复制到 output_dir；不修改输入目录。"""
     shutil.copytree(skill_dir, output_dir, dirs_exist_ok=True)
 
 
 def write_artifact(output_dir, skill, artifact, content):
-    """Write one artifact under output_dir/<skill>/<artifact>."""
+    """将一个资源文件写入 output_dir/<skill>/<artifact>。"""
     path = Path(output_dir) / skill / artifact
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content)
@@ -33,7 +33,7 @@ def write_artifact(output_dir, skill, artifact, content):
 
 
 def skill_overview(files):
-    """Per-skill SKILL.md text plus artifact list, for the localization prompt."""
+    """为定位 prompt 提供每个 Skill 的 SKILL.md 文本和资源列表。"""
     skills = {}
     for rel in files:
         skills.setdefault(rel.split("/", 1)[0], []).append(rel)
@@ -48,5 +48,5 @@ def skill_overview(files):
 
 
 def numbered(content):
-    """Prefix each line with its 1-based line number for line-range citations."""
+    """为每行添加从 1 开始的行号，以便引用行范围。"""
     return "\n".join(f"{i:4d}| {line}" for i, line in enumerate(content.splitlines(), 1))

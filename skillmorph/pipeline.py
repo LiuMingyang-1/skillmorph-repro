@@ -1,20 +1,20 @@
-"""First-loop experiment pipeline: trajectories -> revised skills.
+"""首轮实验流水线：轨迹 -> 修订后的 Skill。
 
-Single round, no history. Layout under ``experiments/<exp>/``::
+单轮运行，不使用历史数据。目录结构位于 ``experiments/<exp>/``：
 
-    data/trajectories.json   one JSON list of raw runs (docs/INTERFACES.md)
-    prompts/                 prompt set used by every stage
-    skills/                  initial skill tree
+    data/trajectories.json   原始运行组成的 JSON 列表（见 docs/INTERFACES.md）
+    prompts/                 各阶段共用的 prompt 集合
+    skills/                  初始 Skill 目录树
     rounds/round_001/
-        prompts/        copy of the prompt set used
-        skills_before/  copy of the input skill tree
-        trajectories/   the input trajectories as consumed
-        analysis/       abstracted runs, action map, coverage, ranking
-        revision/       edit sites, proposals, evaluation and diff
-        skills_after/   revised skill tree (verbatim copy if nothing applied)
+        prompts/        本轮使用的 prompt 集合副本
+        skills_before/  输入 Skill 目录树副本
+        trajectories/   实际使用的输入轨迹
+        analysis/       抽象后的运行、动作映射、覆盖计数和排序
+        revision/       编辑位置、提案、评估结果和 diff
+        skills_after/   修订后的 Skill 目录树（未应用修订时为原样副本）
 
-``run_experiment`` refuses to overwrite an existing round directory. Every
-artifact is plain JSON or text; exceptions propagate (no retries/fallbacks).
+``run_experiment`` 会拒绝覆盖已存在的轮次目录。所有产物均为普通 JSON 或文本；
+异常会继续向上抛出（不重试、不回退）。
 """
 
 from __future__ import annotations
@@ -32,10 +32,10 @@ ROUND = "round_001"
 
 
 def _load_runs(data_dir: Path) -> list[dict]:
-    """Read ``data/trajectories.json``: one JSON list of raw runs.
+    """读取 ``data/trajectories.json``：其中是原始运行组成的 JSON 列表。
 
-    Every run needs task_id/run_id/outcome/steps (docs/INTERFACES.md).
-    A missing file or field raises directly.
+    每条运行都需要 task_id/run_id/outcome/steps（见 docs/INTERFACES.md）。
+    文件或字段缺失时会直接抛出异常。
     """
     runs = json.loads((data_dir / DATA_FILE).read_text(encoding="utf-8"))
     for i, run in enumerate(runs):
@@ -54,7 +54,7 @@ def _write_text(path: Path, text: str) -> None:
 
 
 def _prepare_round(exp: Path) -> Path:
-    """Create round_001 with its input snapshots; fail if it already exists."""
+    """创建 round_001 并保存输入快照；若目录已存在则报错。"""
     round_dir = exp / "rounds" / ROUND
     round_dir.mkdir(parents=True, exist_ok=False)
     for sub in ("prompts", "skills_before", "trajectories", "analysis",
@@ -68,7 +68,7 @@ def _prepare_round(exp: Path) -> Path:
 
 
 def _revision(ranked, skill_dir, runs, round_dir, *, prompt_dir, client):
-    """localize -> propose -> evaluate_and_patch for each suspicious action."""
+    """对每个可疑动作依次执行 localize -> propose -> evaluate_and_patch。"""
     rev_dir = round_dir / "revision"
     edit_sites, proposals = [], []
     for action in ranked:
@@ -78,8 +78,8 @@ def _revision(ranked, skill_dir, runs, round_dir, *, prompt_dir, client):
         edit_sites.append(site)
         if site["locations"]:
             proposal = propose(site, client=client, prompt_dir=prompt_dir)
-            # evaluate_and_patch needs the site's evidence/occurrences;
-            # propose() itself only returns action_id/edits/rationale.
+            # evaluate_and_patch 需要编辑位置中的证据和出现记录；
+            # propose() 本身只返回 action_id、edits 和 rationale。
             proposals.append({**proposal, "edit_site": site})
     result = evaluate_and_patch(
         proposals,
@@ -100,12 +100,12 @@ def _revision(ranked, skill_dir, runs, round_dir, *, prompt_dir, client):
 
 
 def run_experiment(experiment_dir, *, client=None) -> dict:
-    """Run one full loop of the pipeline over ``experiment_dir``.
+    """对 ``experiment_dir`` 执行一轮完整的流水线。
 
-    ``client`` is an OpenAI-compatible client (or fake) providing
-    ``chat.completions.create`` and ``embeddings.create``; ``None`` uses the
-    real OpenAI client (OPENAI_API_KEY). Returns the summary dict also
-    written to ``rounds/round_001/analysis/summary.json``.
+    ``client`` 是提供 ``chat.completions.create`` 和 ``embeddings.create``
+    接口的 OpenAI 兼容客户端（或 fake）；若为 ``None``，则使用真实的 OpenAI
+    客户端（OPENAI_API_KEY）。返回摘要字典，该摘要也会写入
+    ``rounds/round_001/analysis/summary.json``。
     """
     exp = Path(experiment_dir)
     prompt_dir = exp / "prompts"

@@ -1,11 +1,9 @@
-"""Edit-site localization (paper 4.3).
+"""定位编辑位置（论文 4.3）。
 
-Two-round narrowing instead of a tool-using agent: first the LLM picks the
-relevant artifacts from an overview plus the recorded skill usage, then it
-reads the numbered contents of those artifacts and cites line ranges. The
-located contents are embedded into the returned edit_site so downstream
-propose() needs no further skill-tree access. No fallbacks: whatever the LLM
-selects is used as-is, and empty selections stay empty.
+采用两轮逐步缩小范围，而非使用可调用工具的 Agent：首先，LLM 根据概览和记录的
+Skill 使用情况选出相关资源；随后读取这些资源的带行号内容，并标注行范围。
+定位到的内容会嵌入返回的 edit_site，因此后续 propose() 无需再次访问 Skill 目录树。
+不提供回退：LLM 选出的内容会原样使用，空选择也保持为空。
 """
 
 import json
@@ -16,7 +14,7 @@ from .skills import numbered, read_skill_tree, skill_overview
 
 
 def _occurrences(action, runs):
-    """Contexts of the suspicious action in its evidence runs."""
+    """证据运行中可疑动作出现时的上下文。"""
     wanted = set(action.get("fail_runs", [])) | set(action.get("succ_runs", []))
     out = []
     for run in runs:
@@ -36,9 +34,9 @@ def _occurrences(action, runs):
                     "state_after": tr.get("state_after"),
                     "skills_used": tr.get("skills_used", []),
                     "files_read": tr.get("files_read", []),
-                    # Per-occurrence judgments from mark_errors(); absent on
-                    # failed runs, whose actions count as failure coverage
-                    # without judgment — None there, never implies clean.
+                    # mark_errors() 生成的逐次出现判断；失败运行中没有这些判断，
+                    # 其中的动作直接计入失败覆盖，
+                    # 无需判断；此处的 None 绝不表示动作正常。
                     "introduces_error": tr.get("introduces_error"),
                     "error_reason": tr.get("error_reason"),
                     "prev_action": transitions[k - 1].get("action") if k else None,
@@ -51,10 +49,9 @@ def _occurrences(action, runs):
 
 
 def _file_hints(action, runs, skills):
-    """skill_dir-relative artifact paths the trajectory records as consulted.
+    """轨迹中记录为已查阅、且相对于 skill_dir 的资源路径。
 
-    Passed to the LLM as localization evidence only; never merged into the
-    selected files.
+    仅作为定位证据传给 LLM；不会并入选中的文件。
     """
     hints = set()
     wanted = set(action.get("fail_runs", [])) | set(action.get("succ_runs", []))
@@ -71,10 +68,10 @@ def _file_hints(action, runs, skills):
 
 
 def localize(action, skill_dir, runs, client=None, *, prompt_dir):
-    """Locate the skill contents guiding one suspicious action.
+    """定位指导某个可疑动作的 Skill 内容。
 
-    Returns an edit_site dict: action_id, locations (skill/artifact/lines/
-    content), rationale, evidence, and the occurrence contexts used.
+    返回 edit_site 字典，包含 action_id、locations（skill/artifact/lines/
+    content）、rationale、evidence 和使用的动作出现上下文。
     """
     files = read_skill_tree(skill_dir)
     contexts = _occurrences(action, runs)
@@ -112,7 +109,7 @@ def localize(action, skill_dir, runs, client=None, *, prompt_dir):
             "occurrences": contexts,
         }
 
-    # Use exactly the files the LLM selected; unknown paths raise KeyError.
+    # 严格使用 LLM 选中的文件；遇到未知路径时抛出 KeyError。
     selected, seen = [], set()
     for loc in first["locations"]:
         rel = f"{loc['skill']}/{loc['artifact']}"

@@ -1,9 +1,8 @@
-"""Unify synonymous action texts across runs via embedding + clustering.
+"""通过嵌入和聚类统一不同运行中的同义动作文本。
 
-Embeds every distinct `action` string appearing in the abstracted runs,
-cuts a hierarchical clustering at CLUSTER_DISTANCE, and assigns one
-action_id per cluster. The mapping covers all runs in the batch, so the
-same action_id is comparable across tasks and runs.
+对抽象运行中每个不同的 `action` 文本生成嵌入，在 CLUSTER_DISTANCE 处
+截断层次聚类，并为每个聚类分配一个 action_id。映射覆盖批次中的全部运行，
+因此相同的 action_id 可跨任务和运行进行比较。
 """
 
 from __future__ import annotations
@@ -14,8 +13,8 @@ from scipy.spatial.distance import pdist
 
 from .. import config, llm
 
-# Embedding model for action-text comparison. The paper does not specify
-# one; this constant keeps the choice local to the abstraction module.
+# 用于比较动作文本的嵌入模型。论文没有指定
+# 具体模型；此常量将该选项限定在抽象模块内。
 EMBEDDING_MODEL = "text-embedding-3-small"
 
 
@@ -25,11 +24,11 @@ def _embed(texts: list[str], client) -> np.ndarray:
 
 
 def cluster_actions(abstracted_runs: list[dict], client=None) -> dict:
-    """Assign unified action ids to all transitions, in place.
+    """原地为所有状态转移分配统一的动作 ID。
 
-    For each transition, sets `action_id` and copies the original `action`
-    string into `action_text` (the `action` field itself is left untouched).
-    Returns the {action_text: action_id} mapping.
+    对每条状态转移设置 `action_id`，并将原始 `action` 文本复制到
+    `action_text`（`action` 字段本身保持不变）。返回
+    {action_text: action_id} 映射。
     """
     texts = sorted(
         {tr["action"] for run in abstracted_runs for tr in run["transitions"]}

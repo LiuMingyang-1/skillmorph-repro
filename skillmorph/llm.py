@@ -1,9 +1,9 @@
-"""OpenAI chat-completion boundary for the framework stages.
+"""演化框架各阶段使用的 OpenAI Chat Completions 接口封装。
 
-API key is read by the SDK from the OPENAI_API_KEY environment variable.
-No retries, fallbacks, or error swallowing: call failures propagate.
-For offline tests, inject a fake `client` exposing
-`client.chat.completions.create(...)`.
+SDK 从 OPENAI_API_KEY 环境变量读取 API key。
+不重试、不回退，也不屏蔽错误：调用失败会继续向上抛出。
+离线测试时，可注入一个提供
+`client.chat.completions.create(...)` 接口的 fake `client`。
 """
 
 from openai import OpenAI
@@ -21,9 +21,9 @@ def get_client():
 
 
 def chat(messages, *, model=None, client=None, json_mode=False, temperature=None):
-    """Single chat completion. `messages` is the OpenAI messages list.
+    """执行一次 Chat Completion。`messages` 是 OpenAI 格式的消息列表。
 
-    Returns the assistant message content as a string.
+    返回字符串形式的 assistant 消息内容。
     """
     client = client or get_client()
     kwargs = {}
@@ -40,7 +40,7 @@ def chat(messages, *, model=None, client=None, json_mode=False, temperature=None
 
 
 def chat_json(messages, *, model=None, client=None, temperature=None):
-    """Chat completion expected to return a JSON object; parsed and returned."""
+    """调用 Chat Completion，预期返回 JSON 对象；解析后返回。"""
     import json
 
     content = chat(

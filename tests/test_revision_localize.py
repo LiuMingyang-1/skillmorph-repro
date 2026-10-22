@@ -1,4 +1,4 @@
-"""Localization and proposal tests (offline fake client)."""
+"""定位和提案测试（使用离线 fake 客户端）。"""
 
 import json
 
@@ -9,7 +9,7 @@ from skillmorph.revision import evaluate_and_patch, localize, propose
 
 
 def _mixed_runs():
-    """One action occurring in a judged success run and an unjudged fail run."""
+    """某个动作同时出现在经过判断的成功运行和未经判断的失败运行中。"""
     return [
         {
             "task_id": "t1",
@@ -77,7 +77,7 @@ _EMPTY_SITE = {
 def test_occurrence_error_marks_reach_propose_and_evaluate(
     skill_dir, tmp_path
 ):
-    """mark_errors() fields survive localize -> propose -> evaluate prompts."""
+    """mark_errors() 添加的字段会保留，并传递到 localize -> propose -> evaluate 的 prompt 中。"""
     client = FakeClient(json.dumps({"locations": [], "rationale": "none"}))
     site = localize(
         _MIXED_ACTION, skill_dir, _mixed_runs(),
@@ -87,7 +87,7 @@ def test_occurrence_error_marks_reach_propose_and_evaluate(
     by_run = {o["run"]: o for o in site["occurrences"]}
     assert by_run["t1/ok"]["introduces_error"] is True
     assert by_run["t1/ok"]["error_reason"] == "creates an isolated empty database"
-    # unjudged fail run: None, never a fabricated "clean"
+    # 未经判断的失败运行：值为 None，绝不伪造为“正常”。
     assert by_run["t1/bad"]["introduces_error"] is None
     assert by_run["t1/bad"]["error_reason"] is None
     sent = client.requests[0]["messages"][0]["content"]
@@ -143,28 +143,28 @@ def test_localize_embeds_contents_and_evidence(skill_dir):
 
     assert site["action_id"] == "act_001"
     assert site["evidence"]["fail_runs"] == ["t1/r1", "t1/r2"]
-    assert len(site["occurrences"]) == 2  # both runs' occurrences collected
+    assert len(site["occurrences"]) == 2  # 已收集两次运行中的动作出现记录。
     by_artifact = {loc["artifact"]: loc for loc in site["locations"]}
     assert set(by_artifact) == {"reference/db.md", "SKILL.md"}
     assert "connection per operation" in by_artifact["reference/db.md"]["content"]
     assert "npm run build" in by_artifact["SKILL.md"]["content"]
-    # second call carried the numbered contents of the selected files
+    # 第二次调用包含了选中文件及其编号内容。
     assert "connection per operation" in client.requests[1]["messages"][0]["content"]
 
 
 def test_localize_empty_selection_stops_without_fallback(skill_dir):
-    """Empty artifact selection returns locations=[] with no second call."""
+    """资源选择为空时返回 locations=[]，且不会进行第二次调用。"""
     client = FakeClient(
         json.dumps({"locations": [], "rationale": "nothing relevant"})
     )
     site = localize(ACTION, skill_dir, RUNS, client=client, prompt_dir=PROMPTS)
     assert site["locations"] == []
     assert site["evidence"]["score"] == 0.61
-    assert len(client.requests) == 1  # no fallback, no second call
+    assert len(client.requests) == 1  # 不启用回退，也不进行第二次调用。
 
 
 def test_localize_empty_line_locations_stay_empty(skill_dir):
-    """Second call returning no locations is kept empty, not backfilled."""
+    """第二次调用没有返回定位结果时保持为空，不补填其他内容。"""
     client = FakeClient(
         json.dumps(
             {
@@ -179,7 +179,7 @@ def test_localize_empty_line_locations_stay_empty(skill_dir):
 
 
 def test_localize_unknown_artifact_raises(skill_dir):
-    """A selected path that does not exist is an error, not filtered away."""
+    """所选路径不存在时应报错，而不是直接过滤掉。"""
     client = FakeClient(
         json.dumps(
             {

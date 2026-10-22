@@ -1,15 +1,13 @@
-"""Per-task coverage counts of actions across runs (paper §4.2, Eq. 4).
+"""按任务统计各动作在不同运行中的覆盖次数（论文 §4.2，公式 4）。
 
-A run covers action a if its trajectory contains at least one occurrence of a.
-Failed runs give failure coverage to every occurring action. Successful runs
-split per occurrence: an occurrence judged `introduces_error` gives failure
-coverage, otherwise success coverage. Each run contributes at most once to
-*each* coverage count of a, so one successful run may contribute both N- and
-N+ for the same action when its occurrences split.
+如果一条运行轨迹中至少出现一次动作 a，则该运行覆盖动作 a。失败运行中出现的
+每个动作都计入失败覆盖。成功运行则按动作的每次出现分别判断：被判定为
+`introduces_error` 的出现计入失败覆盖，否则计入成功覆盖。每条运行对动作 a 的
+每种覆盖计数最多贡献一次，因此同一条成功运行中的同一动作若有不同判断，
+N- 和 N+ 都可能增加。
 
-F_{i,t} counts the runs of task t providing failure coverage of at least one
-action: all failed runs (that have actions) plus successful runs containing at
-least one error-introducing occurrence.
+F_{i,t} 统计任务 t 中至少为一个动作提供失败覆盖的运行数：包括所有含动作的失败运行，
+以及至少包含一次引入错误动作的成功运行。
 """
 
 
@@ -18,15 +16,15 @@ def _run_key(run: dict) -> str:
 
 
 def coverage(abstracted_runs: list[dict]) -> dict:
-    """Compute per-task, per-action failure/success coverage counts.
+    """计算每个任务中各动作的失败覆盖数和成功覆盖数。
 
-    Each run must have `task_id`, `run_id`, `outcome` and `transitions`;
-    transitions carry `action_id` plus `introduces_error` (required on
-    successful runs — call `mark_errors` first).
+    每条运行都必须包含 `task_id`、`run_id`、`outcome` 和 `transitions`；
+    transitions 中须包含 `action_id` 和 `introduces_error`（成功运行必需，
+    请先调用 `mark_errors`）。
 
-    Returns `{task_id: {"actions": {action_id: {"n_fail","n_succ",
-    "fail_runs","succ_runs"}}, "f": int, "fail_runs": [...]}}`,
-    JSON-serializable. `fail_runs`/`succ_runs` hold `task_id/run_id` keys.
+    返回 `{task_id: {"actions": {action_id: {"n_fail","n_succ",
+    "fail_runs","succ_runs"}}, "f": int, "fail_runs": [...]}}`，
+    可序列化为 JSON。`fail_runs`/`succ_runs` 中的条目以 `task_id/run_id` 为键。
     """
     tasks: dict[str, dict] = {}
     for run in abstracted_runs:

@@ -1,12 +1,10 @@
-"""Proposal evaluation, selection, and application (paper 4.3).
+"""评估、选择并应用修订提案（论文 4.3）。
 
-One CoT call evaluates every proposal against its action's evidence, the
-current skill contents (duplication/conflict, changes beyond evidence), and
-the successful runs that rely on the edited contents. The LLM returns the
-selected/rejected ids plus the complete new content of every file to change;
-this module copies the input tree to output_dir and replaces only those
-files, so no patch parser is needed and the input is never modified. Files
-are applied only when the selection is non-empty.
+通过一次 CoT 调用，结合每个动作的证据、当前 Skill 内容（检查重复或冲突，以及
+是否存在超出证据范围的修改）和依赖被编辑内容的成功运行来评估所有提案。LLM
+返回选中和拒绝的 ID，以及每个待修改文件的完整新内容；本模块将输入目录树复制到
+output_dir 并仅替换这些文件，因此无需解析补丁，且不会修改输入目录。
+只有选中的提案非空时才会应用文件修改。
 """
 
 import difflib
@@ -18,11 +16,11 @@ from .skills import copy_skill_tree, read_skill_tree, write_artifact
 
 
 def evaluate_and_patch(proposals, skill_dir, client=None, *, prompt_dir, output_dir):
-    """Evaluate proposals, apply the consolidated revision to output_dir.
+    """评估提案，并将合并后的修订应用到 output_dir。
 
-    Returns {selected, rejected, diff, skills_after}. Each proposal may carry
-    "evidence"/"occurrences" or an embedded "edit_site"; either is forwarded
-    so the LLM never evaluates an action_id with no evidence behind it.
+    返回 {selected, rejected, diff, skills_after}。每条提案可以携带
+    "evidence"/"occurrences" 或内嵌的 "edit_site"；两者都会传递给 LLM，
+    确保 LLM 评估 action_id 时始终有相应证据。
     """
     files = read_skill_tree(skill_dir)
     copy_skill_tree(skill_dir, output_dir)
@@ -92,11 +90,11 @@ NO_EOL = "\\ No newline at end of file"
 
 
 def _diff_lines(text):
-    """Split for difflib, embedding the no-EOL marker in the last line.
+    """为 difflib 拆分内容，并将无行尾标记附加到最后一行。
 
-    A file without a trailing newline gets its final line suffixed with the
-    standard marker, so whether that line is emitted as -, +, or context the
-    hunk stays well-formed. File contents are never modified.
+    如果文件末尾没有换行符，就在最后一行后附加标准标记。无论该行在 hunk 中
+    被标记为删除（-）、新增（+）还是上下文，hunk 都能保持格式正确。
+    文件内容本身不会被修改。
     """
     lines = text.splitlines(keepends=True)
     if lines and not lines[-1].endswith("\n"):

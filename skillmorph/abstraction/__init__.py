@@ -1,4 +1,4 @@
-"""Trajectory abstraction: raw runs -> state transitions -> unified action ids."""
+"""轨迹抽象：原始运行 -> 状态转移 -> 统一动作 ID。"""
 
 from .abstract import abstract_run
 from .cluster import cluster_actions

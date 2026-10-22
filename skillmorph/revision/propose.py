@@ -1,8 +1,7 @@
-"""Revision proposal generation (paper 4.3).
+"""生成修订提案（论文 4.3）。
 
-One proposal per edit site. The site contents, localization rationale, action
-evidence, and occurrence contexts are all inside edit_site, so this is a
-single self-contained LLM call.
+每个编辑位置生成一条提案。编辑位置的内容、定位理由、动作证据和出现上下文
+都包含在 edit_site 中，因此只需一次完整的 LLM 调用。
 """
 
 import json
@@ -12,9 +11,9 @@ from .prompts import load_prompt
 
 
 def propose(edit_site, client=None, *, prompt_dir):
-    """Generate a revision proposal for one edit_site.
+    """为一个 edit_site 生成修订提案。
 
-    Returns {action_id, edits: [{skill, artifact, lines, change}], rationale}.
+    返回 {action_id, edits: [{skill, artifact, lines, change}], rationale}。
     """
     template = load_prompt(prompt_dir, "propose.txt")
     result = chat_json(

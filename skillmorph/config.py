@@ -1,19 +1,19 @@
-"""Tunable parameters shared by the evolution stages."""
+"""演化各阶段共用的可调参数。"""
 
 MODEL = "gpt-4o"
 TEMPERATURE = 0.0
 MAX_TOKENS = 8192
 
-# Runs per task per loop (paper: m=3); out-of-scope for round one but kept as
-# the documented default for later stages.
+# 每个循环中每项任务的运行次数（论文中 m=3）；首轮暂不涉及，但保留
+# 作为后续阶段的文档默认值。
 RUNS_PER_TASK = 3
 
-# Context window (steps on each side) for judging whether an action occurrence
-# in a successful run introduced an error (paper: h steps before/after step k).
+# 判断某次动作是否引入错误时所用的上下文窗口（动作前后各取若干步）。
+# （论文中为第 k 步前后各 h 步）。
 ERROR_WINDOW = 3
 
-# Top-n suspicious actions passed to edit-site localization (paper: top-10).
+# 传递给编辑位置定位阶段的前 n 个可疑动作（论文中为前 10 个）。
 TOP_N_SUSPICIOUS = 10
 
-# Hierarchical-clustering cut threshold used to merge synonymous actions.
+# 用于合并同义动作的层次聚类截断阈值。
 CLUSTER_DISTANCE = 0.5

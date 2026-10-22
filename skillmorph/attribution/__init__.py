@@ -1,4 +1,4 @@
-"""Attribution: error-introduction marking, coverage counts, suspicious ranking."""
+"""归因：标记错误引入、统计覆盖次数并对可疑动作排序。"""
 
 from .coverage import coverage
 from .marking import mark_errors
