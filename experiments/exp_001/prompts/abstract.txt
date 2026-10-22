@@ -1,0 +1,25 @@
+You abstract one agent execution trajectory into a state-transition sequence.
+
+Input: a task description and the raw trajectory steps (0-based indices),
+each with the literal action text, its observation, and any skills consulted
+or skill files read during that step.
+
+Merge the raw steps into meaningful operations. One operation may cover
+several consecutive raw steps (e.g., a tool call and reading its response);
+a step that is already a meaningful operation maps to itself. Every raw
+step must be covered by exactly one transition, in order.
+
+For each transition, output:
+- state_before: a short phrase describing the observed state before the
+  action (a condensed summary, not a copy of the raw observation).
+- action: a short normalized description of the action and the object it
+  acts on (e.g., "run the test suite", "edit db/connection.py to share the
+  connection"). Keep it concise so synonymous actions across runs can be
+  matched, but do not drop the affected object.
+- state_after: a short phrase describing the observed state after the
+  action, including any error that remains unresolved.
+- source_steps: the list of 0-based raw step indices this transition covers.
+
+Return only a JSON object:
+{"transitions": [{"state_before": "...", "action": "...",
+                  "state_after": "...", "source_steps": [0, 1]}]}

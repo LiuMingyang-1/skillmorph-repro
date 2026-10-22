@@ -1,0 +1,118 @@
+[
+  {
+    "task_id": "task_001",
+    "run_id": "run_1",
+    "task": "Build a small in-memory SQLite demo: create a documents table, insert three rows, then list them.",
+    "outcome": "fail",
+    "steps": [
+      {
+        "action": "read sqlite-memory/SKILL.md and reference/connections.md",
+        "observation": "skill says to open a new :memory: connection for each operation",
+        "skills_used": ["sqlite-memory"],
+        "files_read": ["sqlite-memory/SKILL.md", "sqlite-memory/reference/connections.md"]
+      },
+      {
+        "action": "python: connA = connect(':memory:'); create table documents; insert 3 rows",
+        "observation": "3 rows inserted",
+        "skills_used": ["sqlite-memory"],
+        "files_read": []
+      },
+      {
+        "action": "python: connB = connect(':memory:') for the query step",
+        "observation": "connection opened",
+        "skills_used": ["sqlite-memory"],
+        "files_read": []
+      },
+      {
+        "action": "python: connB.execute('SELECT * FROM documents')",
+        "observation": "OperationalError: no such table: documents",
+        "skills_used": [],
+        "files_read": []
+      }
+    ]
+  },
+  {
+    "task_id": "task_001",
+    "run_id": "run_2",
+    "task": "Build a small in-memory SQLite demo: create a documents table, insert three rows, then list them.",
+    "outcome": "success",
+    "steps": [
+      {
+        "action": "read sqlite-memory/SKILL.md",
+        "observation": "skill read",
+        "skills_used": ["sqlite-memory"],
+        "files_read": ["sqlite-memory/SKILL.md"]
+      },
+      {
+        "action": "python: connA = connect(':memory:'); create table documents; insert 3 rows",
+        "observation": "3 rows inserted",
+        "skills_used": ["sqlite-memory"],
+        "files_read": []
+      },
+      {
+        "action": "python: connA.execute('SELECT * FROM documents')",
+        "observation": "3 rows returned",
+        "skills_used": [],
+        "files_read": []
+      }
+    ]
+  },
+  {
+    "task_id": "task_002",
+    "run_id": "run_1",
+    "task": "Keep a users table in an in-memory SQLite database across a login demo; insert two users, then verify they can be queried.",
+    "outcome": "fail",
+    "steps": [
+      {
+        "action": "read sqlite-memory/reference/connections.md",
+        "observation": "connection rules read",
+        "skills_used": ["sqlite-memory"],
+        "files_read": ["sqlite-memory/reference/connections.md"]
+      },
+      {
+        "action": "python: connA = connect(':memory:'); create table users; insert 2 users",
+        "observation": "2 users inserted",
+        "skills_used": ["sqlite-memory"],
+        "files_read": []
+      },
+      {
+        "action": "python: connB = connect(':memory:'); connB.execute('SELECT * FROM users')",
+        "observation": "OperationalError: no such table: users",
+        "skills_used": [],
+        "files_read": []
+      }
+    ]
+  },
+  {
+    "task_id": "task_002",
+    "run_id": "run_2",
+    "task": "Keep a users table in an in-memory SQLite database across a login demo; insert two users, then verify they can be queried.",
+    "outcome": "success",
+    "steps": [
+      {
+        "action": "read sqlite-memory/SKILL.md",
+        "observation": "skill read",
+        "skills_used": ["sqlite-memory"],
+        "files_read": ["sqlite-memory/SKILL.md"]
+      },
+      {
+        "action": "python: connA = connect(':memory:'); create table users; insert 2 users",
+        "observation": "2 users inserted",
+        "skills_used": ["sqlite-memory"],
+        "files_read": []
+      },
+      {
+        "action": "python: connB = connect(':memory:') for the verification step; connB.execute('SELECT * FROM users')",
+        "observation": "OperationalError: no such table: users",
+        "skills_used": ["sqlite-memory"],
+        "files_read": []
+      },
+      {
+        "action": "python: switch back and run connA.execute('SELECT * FROM users')",
+        "observation": "2 users returned",
+        "skills_used": [],
+        "files_read": []
+      }
+    ]
+  }
+]

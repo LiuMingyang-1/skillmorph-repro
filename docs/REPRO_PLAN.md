@@ -1,6 +1,8 @@
 # SkillMorph 复现计划
 
-目标是复现「执行任务 → 抽象轨迹 → 可疑动作定位 → 修改 skill → 重跑验证」的完整流程。先把各部分的职责和数据流划清楚，再逐步实现。当前只讨论和修改计划文档，不创建实现代码。
+目标是复现「执行任务 → 抽象轨迹 → 可疑动作定位 → 修改 skill → 重跑验证」的完整流程。先把各部分的职责和数据流划清楚，再逐步实现。
+
+**当前进度**：单轮 pipeline 已实现（`pipeline.py` / `python -m skillmorph`）：已有轨迹 + skill → abstraction → attribution → revision，产物写 `rounds/round_001/`。execution（任务执行/判分）、evaluation（修订后重跑对比）、多轮历史（Eq.5-7）均未实现，留待后续。
 
 ## 目录与职责
 
