@@ -1,4 +1,4 @@
-"""Minimal CLI: ``uv run python -m skillmorph experiments/exp_001``."""
+"""最简命令行入口：``uv run python -m skillmorph experiments/exp_001``。"""
 
 from __future__ import annotations
 

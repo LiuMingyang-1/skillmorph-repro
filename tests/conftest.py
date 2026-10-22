@@ -1,4 +1,4 @@
-"""Shared offline fixtures for the revision tests."""
+"""修订阶段测试共用的离线夹具。"""
 
 from pathlib import Path
 from types import SimpleNamespace
@@ -7,7 +7,7 @@ import pytest
 
 
 class FakeClient:
-    """Serves queued assistant replies; records every request."""
+    """按队列提供 assistant 回复，并记录每次请求。"""
 
     def __init__(self, *contents):
         self._contents = list(contents)

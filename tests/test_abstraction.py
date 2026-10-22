@@ -1,4 +1,4 @@
-"""Offline tests for skillmorph.abstraction with fake LLM/embedding clients."""
+"""使用 fake LLM 和嵌入客户端测试 skillmorph.abstraction，不访问网络。"""
 
 import json
 import math
@@ -10,7 +10,7 @@ from skillmorph.abstraction import abstract_run, cluster_actions
 
 
 def _chat_client(payload):
-    """Fake OpenAI client whose chat.completions.create returns `payload`."""
+    """fake OpenAI 客户端；其 chat.completions.create 会返回 `payload`。"""
     message = SimpleNamespace(content=json.dumps(payload))
     completions = SimpleNamespace(
         create=lambda **kw: SimpleNamespace(choices=[SimpleNamespace(message=message)])
@@ -19,7 +19,7 @@ def _chat_client(payload):
 
 
 def _vec(text, dims):
-    """Deterministic pseudo-embedding: unit vector scaled by char codes."""
+    """确定性的伪嵌入：根据字符编码生成缩放后的单位向量。"""
     v = [0.0] * dims
     for i, ch in enumerate(text):
         v[i % dims] += (ord(ch) % 17) / 17.0
@@ -27,10 +27,10 @@ def _vec(text, dims):
 
 
 def _embedding_client(similar_pairs):
-    """Fake client where texts in `similar_pairs` share vectors; others differ.
+    """对于 `similar_pairs` 中的文本，fake 客户端会让它们共用向量；其他文本使用不同向量。
 
-    similar_pairs: list of (text_a, text_b); both map to the same vector so
-    their cosine distance is 0. Texts not in any pair get a unique axis.
+    similar_pairs：由 (text_a, text_b) 组成的列表；每对文本映射到同一个向量，
+    因此余弦距离为 0。不属于任何一对的文本会映射到各自唯一的向量轴。
     """
     groups = {}
     dims = 8
@@ -109,7 +109,7 @@ class TestAbstractRun:
         assert t1["k"] == 1 and t1["source_steps"] == [0]
         assert t1["skills_used"] == ["mcp-builder"]
         assert t1["files_read"] == ["SKILL.md"]
-        # Second transition merges steps 1 and 2: union of their sources.
+        # 第二个状态转移合并步骤 1 和 2：来源取两者的并集。
         assert t2["k"] == 2 and t2["source_steps"] == [1, 2]
         assert t2["skills_used"] == ["mcp-builder"]
         assert t2["files_read"] == ["reference/node_mcp_server.md"]
@@ -154,12 +154,12 @@ class TestClusterActions:
 
         assert mapping["open the readme"] == mapping["read the readme"]
         assert mapping["run pytest"] != mapping["open the readme"]
-        # Same action id applied in place to every run's transitions.
+        # 相同的动作 ID 原地应用到每次运行的状态转移中。
         assert runs[0]["transitions"][0]["action_id"] == mapping["open the readme"]
         assert runs[1]["transitions"][0]["action_id"] == mapping["read the readme"]
         assert runs[0]["transitions"][0]["action_text"] == "open the readme"
         assert runs[1]["transitions"][0]["action_text"] == "read the readme"
-        # Original action field preserved.
+        # 保留原始 action 字段。
         assert runs[0]["transitions"][0]["action"] == "open the readme"
 
     def test_single_action_run(self):

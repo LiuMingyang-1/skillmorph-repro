@@ -1,4 +1,4 @@
-"""Tests for mark_errors with a fake LLM client (no network)."""
+"""使用 fake LLM 客户端测试 mark_errors（不访问网络）。"""
 
 import json
 
@@ -9,7 +9,7 @@ from skillmorph.attribution import mark_errors
 
 
 def _run(task_id, run_id, outcome, steps):
-    """steps: list of (action_id, action_text)."""
+    """steps：由 (action_id, action_text) 组成的列表。"""
     return {
         "task_id": task_id,
         "run_id": run_id,
@@ -52,7 +52,7 @@ class _FakeChat:
 
 
 class FakeClient:
-    """Minimal OpenAI-compatible stand-in exposing chat.completions.create."""
+    """提供 chat.completions.create 接口的最简 OpenAI 兼容替身。"""
 
     def __init__(self, answers):
         self.chat = _FakeChat(_FakeCompletions(answers))
@@ -72,7 +72,7 @@ def test_mark_errors_calls_llm_per_occurrence(tmp_path):
     out = mark_errors(run, prompt_dir=tmp_path, client=client)
     assert [t["introduces_error"] for t in out["transitions"]] == [True, False]
     assert out["transitions"][0]["error_reason"] == "broke it"
-    # Original run untouched.
+    # 原始运行数据保持不变。
     assert "introduces_error" not in run["transitions"][0]
     assert len(client.chat.completions.requests) == 2
 
@@ -85,7 +85,7 @@ def test_mark_errors_window_excludes_distant_steps(tmp_path):
     answers = [{"introduces_error": False, "reason": ""} for _ in steps]
     client = FakeClient(answers)
     mark_errors(run, prompt_dir=tmp_path, client=client)
-    # Judging a middle step shows a window of ±ERROR_WINDOW steps only.
+    # 判断中间步骤时，只展示前后各 ERROR_WINDOW 步的窗口。
     mid = h + 1
     ctx = client.chat.completions.requests[mid][0]["content"]
     assert f"a{mid - h}" in ctx
@@ -94,26 +94,26 @@ def test_mark_errors_window_excludes_distant_steps(tmp_path):
 
 
 def test_mark_errors_late_target_step_numbers_match(tmp_path):
-    """Long trajectory (>2h+1), repeated action: the step numbers shown in the
-    context window must be the original 0-based transition indices, so the
-    judged step k matches its displayed context."""
+    """长轨迹（>2h+1）中动作重复出现：上下文窗口中显示的步骤号必须是原始的、
+    从 0 开始的状态转移索引，这样被判断的步骤 k 才能与显示的上下文对应。
+    """
     h = config.ERROR_WINDOW
     (tmp_path / "judge_error.txt").write_text("{context}\n--> {k} {action}\n")
     n = 2 * h + 5
-    # The judged action repeats under one text; k near the end exercises a
-    # window clipped on the left (offset > 0).
+    # 被判断的动作文本重复出现；将 k 设在末尾附近，以覆盖
+    # 左侧窗口被截断的情况（offset > 0）。
     steps = [("act_1", "same action") for _ in range(n)]
     run = _run("t", "r", "success", steps)
     answers = [{"introduces_error": False, "reason": ""} for _ in steps]
     client = FakeClient(answers)
     mark_errors(run, prompt_dir=tmp_path, client=client)
 
-    k = n - 1  # last step; window is steps n-1-h .. n-1
+    k = n - 1  # 最后一步；窗口范围为 n-1-h 到 n-1。
     content = client.chat.completions.requests[k][0]["content"]
     ctx, target = content.split("-->")
     assert target.strip().startswith(str(k))
-    # First and last context lines carry the original indices, not 0-based
-    # window-relative ones.
+    # 上下文首尾行保留原始索引，而不是相对于窗口的
+    # 0 起始索引。
     assert f"step {k - h}:" in ctx
     assert f"step {k}:" in ctx
     assert f"step {k - h - 1}:" not in ctx

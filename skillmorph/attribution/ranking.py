@@ -1,13 +1,11 @@
-"""Cross-task aggregation and Ochiai suspiciousness scoring (paper §4.2, Eq. 9).
+"""跨任务汇总并使用 Ochiai 可疑度公式评分（论文 §4.2，公式 9）。
 
-Candidates are actions with failure coverage in at least one task. The score
-aggregates N-/N+ across tasks (Eq. 8; first round has no history so adjusted
-counts equal raw counts) and applies:
+候选项是在至少一个任务中具有失败覆盖的动作。评分先汇总各任务的 N-/N+
+（公式 8；首轮没有历史数据，因此调整后计数等于原始计数），再应用：
 
     s(a) = N-(a) / sqrt(F * (N-(a) + N+(a))),   F = sum_t F_{i,t}
 
-Historical weighting (Eq. 5-7) is out of scope for the first loop and is not
-implemented.
+首轮不涉及历史加权（公式 5–7），因此尚未实现。
 """
 
 import math
@@ -29,14 +27,14 @@ def rank(
     top_n: int = config.TOP_N_SUSPICIOUS,
     abstracted_runs: list[dict] | None = None,
 ) -> list[dict]:
-    """Rank candidate actions by suspicious score, descending.
+    """按可疑度从高到低排列候选动作。
 
-    `coverage_by_task` is the output of `coverage()`. `abstracted_runs` is
-    optional and only supplies human-readable `action_text` for each action id.
+    `coverage_by_task` 是 `coverage()` 的输出。`abstracted_runs` 为可选参数，
+    仅用于为每个动作 ID 提供便于阅读的 `action_text`。
 
-    Returns the top-`top_n` entries as dicts with `action_id`, `action_text`,
-    `score`, `n_fail`, `n_succ`, `fail_runs`, `succ_runs`, `tasks` — all
-    JSON-serializable, run lists keyed `task_id/run_id` for edit-site lookup.
+    返回前 `top_n` 项，每项为包含 `action_id`、`action_text`、`score`、
+    `n_fail`、`n_succ`、`fail_runs`、`succ_runs`、`tasks` 的字典，均可
+    序列化为 JSON。运行列表使用 `task_id/run_id` 键，以便查找编辑位置。
     """
     f_total = sum(task["f"] for task in coverage_by_task.values())
     if f_total == 0:
@@ -59,7 +57,7 @@ def rank(
     ranked = []
     for action_id, nf in n_fail.items():
         if nf <= 0:
-            continue  # candidate requires failure coverage in some task
+            continue  # 候选动作必须至少在一个任务中具有失败覆盖。
         ns = n_succ.get(action_id, 0)
         score = nf / math.sqrt(f_total * (nf + ns))
         ranked.append(

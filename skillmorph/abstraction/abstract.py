@@ -1,10 +1,9 @@
-"""Abstract one raw trajectory into a state-transition sequence via an LLM.
+"""使用 LLM 将一条原始轨迹抽象为状态转移序列。
 
-The prompt asks the model to merge raw steps into meaningful operations and
-emit (state_before, action, state_after) triples that map back to the raw
-step indices they cover. We keep one transition per LLM-emitted item and
-attach the union of the covered steps' skills_used / files_read so later
-stages can trace evidence back to skill sources.
+提示词要求模型将原始步骤合并为有意义的操作，并输出
+(state_before, action, state_after) 三元组，同时注明每个转移对应的原始步骤索引。
+每个 LLM 输出项保留为一条状态转移，并附上其覆盖步骤中的 skills_used / files_read 并集，
+以便后续阶段将证据追溯到 Skill 来源。
 """
 
 from __future__ import annotations
@@ -33,15 +32,14 @@ def _format_steps(steps: list[dict]) -> str:
 
 
 def abstract_run(raw: dict, *, prompt_dir, client=None) -> dict:
-    """Abstract one raw run into a transition sequence.
+    """将一条原始运行抽象为状态转移序列。
 
-    `raw` follows docs/INTERFACES.md stage-0 schema. Returns a dict with
-    task_id / run_id / outcome / task preserved and `transitions`: a list of
+    `raw` 遵循 docs/INTERFACES.md 中阶段 0 的结构。返回字典，保留
+    task_id / run_id / outcome / task，并包含 `transitions` 列表；每项含有
     {k, state_before, action, state_after, skills_used, files_read,
-    source_steps}. k is 1-based and indexes the returned transitions; the
-    paper's (mu_{k-1}, a_k, mu_k) corresponds to transitions[k-1].
-    source_steps are the 0-based raw step indices each transition covers,
-    as reported by the model.
+    source_steps}。k 从 1 开始，为返回的状态转移编号；论文中的
+    (mu_{k-1}, a_k, mu_k) 对应 transitions[k-1]。
+    source_steps 是模型报告的、每条状态转移所覆盖的原始步骤索引（从 0 开始）。
     """
     prompt = _load_prompt(prompt_dir)
     user = (

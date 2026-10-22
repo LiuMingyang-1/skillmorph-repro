@@ -1,28 +1,28 @@
-"""Hand-computed tests for coverage counting and suspicious ranking.
+"""手工计算覆盖计数和可疑度排序的测试。
 
-Fixture (5 runs across 2 tasks), occurrences marked by a fake judge:
+夹具包含 2 个任务的 5 次运行，动作出现情况由 fake judge 标记：
 
-  task_001/run_1  fail     act_1 act_1 act_2          -> act_1,act_2 fail cov
-  task_001/run_2  success  act_1(err) act_1(ok) act_2(ok)
-                                                   -> act_1 fail AND succ
-                                                      (same run, same action,
-                                                      mixed occurrences),
-                                                      act_2 succ cov
-  task_001/run_3  success  act_1(err) act_3(ok)      -> act_1 fail, act_3 succ
-  task_002/run_1  fail     act_3                     -> act_3 fail cov
-  task_002/run_2  success  act_2(ok)                 -> act_2 succ cov
+  task_001/run_1  失败     act_1 act_1 act_2          -> act_1、act_2 计入失败覆盖
+  task_001/run_2  成功     act_1(错误) act_1(正常) act_2(正常)
+                                                   -> act_1 同时计入失败和成功覆盖
+                                                      （同一次运行、同一动作，
+                                                      不同出现情况判断不同），
+                                                      act_2 计入成功覆盖
+  task_001/run_3  成功     act_1(错误) act_3(正常)   -> act_1 失败覆盖，act_3 成功覆盖
+  task_002/run_1  失败     act_3                     -> act_3 计入失败覆盖
+  task_002/run_2  成功     act_2(正常)               -> act_2 计入成功覆盖
 
-Per-task counts:
-  task_001: act_1 N-=3 N+=1 (run_1, run_2, run_3 fail; run_2 also succ)
-            act_2 N-=1 N+=1 (run_1 fail, run_2 succ)
-            act_3 N+=1 (run_3 succ)
-            F = 3 (run_1, run_2, run_3 all give failure coverage)
-  task_002: act_3 N-=1, act_2 N+=1, F = 1 (run_1)
+各任务的计数：
+  task_001: act_1 N-=3 N+=1（run_1、run_2、run_3 计入失败；run_2 也计入成功）
+            act_2 N-=1 N+=1（run_1 计入失败，run_2 计入成功）
+            act_3 N+=1（run_3 计入成功）
+            F = 3（run_1、run_2、run_3 都提供了失败覆盖）
+  task_002: act_3 N-=1，act_2 N+=1，F = 1（run_1）
 
-Cross-task totals (F = 4):
+跨任务总计（F = 4）：
   act_1: N-=3, N+=1   act_2: N-=1, N+=2   act_3: N-=1, N+=1
 
-Scores, s(a) = N- / sqrt(F * (N- + N+))  (paper Eq. 9, Ochiai):
+评分公式：s(a) = N- / sqrt(F * (N- + N+))（论文公式 9，Ochiai）：
   act_1 = 3/sqrt(4*4) = 0.750000
   act_3 = 1/sqrt(4*2) = 0.353553
   act_2 = 1/sqrt(4*3) = 0.288675
@@ -37,7 +37,7 @@ from skillmorph.attribution import coverage, rank
 
 
 def _run(task_id, run_id, outcome, steps):
-    """steps: list of (action_id, action_text, introduces_error|None)."""
+    """steps：由 (action_id, action_text, introduces_error|None) 组成的列表。"""
     return {
         "task_id": task_id,
         "run_id": run_id,
@@ -90,7 +90,7 @@ def runs():
 def test_coverage_dedups_repeated_occurrences(runs):
     cov = coverage(runs)
     a1 = cov["task_001"]["actions"]["act_1"]
-    # run_1's two act_1 occurrences in a failed run still give one coverage.
+    # run_1 在失败运行中两次出现 act_1，仍只计一次覆盖。
     assert a1["n_fail"] == 3
     assert a1["fail_runs"] == [
         "task_001/run_1", "task_001/run_2", "task_001/run_3",
@@ -102,20 +102,20 @@ def test_coverage_dedups_repeated_occurrences(runs):
 def test_coverage_mixed_occurrences_give_both_coverages(runs):
     cov = coverage(runs)
     a1 = cov["task_001"]["actions"]["act_1"]
-    # run_2 has an error and a clean act_1 occurrence: it contributes to BOTH
-    # failure and success coverage of act_1 (per-occurrence, separately deduped).
+    # run_2 中 act_1 有一次引入错误、一次正常，因此失败覆盖和成功覆盖
+    # 都会计入（按出现次数判断，并分别去重）。
     assert "task_001/run_2" in a1["fail_runs"]
     assert a1["succ_runs"] == ["task_001/run_2"]
 
 
 def test_coverage_f_counts_runs_with_any_failure_coverage(runs):
     cov = coverage(runs)
-    # task_001: run_1 (failed), run_2 and run_3 (error occurrences).
+    # task_001：run_1 失败；run_2 和 run_3 中有引入错误的动作。
     assert cov["task_001"]["f"] == 3
     assert cov["task_001"]["fail_runs"] == [
         "task_001/run_1", "task_001/run_2", "task_001/run_3",
     ]
-    # task_002: only run_1 failed; run_2's act_2 was clean.
+    # task_002：只有 run_1 失败；run_2 中的 act_2 正常。
     assert cov["task_002"]["f"] == 1
     assert cov["task_002"]["fail_runs"] == ["task_002/run_1"]
 
@@ -139,9 +139,9 @@ def test_coverage_rejects_bad_outcome(runs):
 def test_rank_scores_and_order(runs):
     ranked = rank(coverage(runs), abstracted_runs=runs)
     expected = {
-        "act_1": 3 / math.sqrt(4 * 4),   # 0.75
-        "act_3": 1 / math.sqrt(4 * 2),   # 0.35355
-        "act_2": 1 / math.sqrt(4 * 3),   # 0.28868
+        "act_1": 3 / math.sqrt(4 * 4),   # 得分为 0.75。
+        "act_3": 1 / math.sqrt(4 * 2),   # 得分为 0.35355。
+        "act_2": 1 / math.sqrt(4 * 3),   # 得分为 0.28868。
     }
     assert [r["action_id"] for r in ranked] == ["act_1", "act_3", "act_2"]
     for r in ranked:

@@ -1,4 +1,4 @@
-"""Evaluate/select/apply tests (offline fake client)."""
+"""评估、选择和应用修订的测试（使用离线 fake 客户端）。"""
 
 import json
 import subprocess
@@ -73,11 +73,11 @@ def test_apply_multi_file_and_preserves_input(skill_dir, tmp_path):
                                    "reason": "insufficient evidence"}]
     assert result["skills_after"] == str(out)
 
-    # cross-file revision applied; rejected proposal's target untouched
+    # 跨文件修订已应用；被拒绝提案的目标文件未改动。
     assert (out / "builder" / "reference" / "db.md").read_text() == new_db
     assert (out / "builder" / "SKILL.md").read_text() == new_skill
     assert (out / "writer" / "SKILL.md").read_text() == SKILL_B
-    # input preserved verbatim
+    # 输入内容原样保留。
     assert snapshot(skill_dir) == snapshot(tmp_path / "skills")
 
     diff = result["diff"]
@@ -85,14 +85,14 @@ def test_apply_multi_file_and_preserves_input(skill_dir, tmp_path):
     assert "a/builder/SKILL.md" in diff
     assert "writer" not in diff
 
-    # evidence was forwarded to the evaluator, not a bare action_id
+    # 传给评估器的是证据，而不是单独的 action_id。
     sent = client.requests[0]["messages"][0]["content"]
     assert '"n_fail": 2' in sent
     assert "npm run build must succeed." in sent
 
 
 def test_empty_selection_applies_nothing(skill_dir, tmp_path):
-    """selected=[] means nothing is written, even if files are returned."""
+    """selected=[] 表示不写入任何内容，即使返回了文件也一样。"""
     out = tmp_path / "skills_after"
     client = FakeClient(
         json.dumps(
@@ -116,17 +116,17 @@ def test_empty_selection_applies_nothing(skill_dir, tmp_path):
 
 def test_empty_proposals_no_llm(skill_dir, tmp_path):
     out = tmp_path / "skills_after"
-    client = FakeClient()  # any call would raise assertion error
+    client = FakeClient()  # 如有任何调用，都会触发断言错误。
     result = evaluate_and_patch(
         [], skill_dir, client=client, prompt_dir=PROMPTS, output_dir=out
     )
     assert result["selected"] == [] and result["rejected"] == []
     assert result["diff"] == ""
-    assert snapshot(out) == snapshot(skill_dir)  # clean copy
+    assert snapshot(out) == snapshot(skill_dir)  # 干净副本。
 
 
 def _git_apply(diff, before, tmp_path):
-    """Apply `diff` in a temp git repo containing `before`; return file text."""
+    """在包含 before 内容的临时 Git 仓库中应用 `diff`，并返回文件文本。"""
     repo = tmp_path / "repo"
     (repo / "builder").mkdir(parents=True)
     (repo / "builder" / "SKILL.md").write_text(before)
@@ -164,10 +164,10 @@ def _patch_no_eol(skill_dir, tmp_path, before, after):
 @pytest.mark.parametrize(
     "before,after",
     [
-        ("old guidance", "new guidance"),          # neither side ends with \n
-        ("old guidance", "new guidance\n"),        # only before lacks it
-        ("old guidance\n", "new guidance"),        # only after lacks it
-        ("a\nsame", "b\nsame"),                    # no-eol tail as context
+        ("old guidance", "new guidance"),          # 两侧内容末尾都没有换行符。
+        ("old guidance", "new guidance\n"),        # 只有修改前的内容末尾没有换行符。
+        ("old guidance\n", "new guidance"),        # 只有修改后的内容末尾没有换行符。
+        ("a\nsame", "b\nsame"),                    # 将无行尾标记的尾行作为上下文。
     ],
     ids=["no-eol-both", "no-eol-before", "no-eol-after", "no-eol-context"],
 )
@@ -178,7 +178,7 @@ def test_diff_without_trailing_newline_git_applies(
     diff = result["diff"]
     if not (before.endswith("\n") and after.endswith("\n")):
         assert "\\ No newline at end of file" in diff
-    # the patch applies cleanly and yields the new content byte-for-byte
+    # 补丁可顺利应用，并逐字节生成新内容。
     assert _git_apply(diff, before, tmp_path) == after
-    # applied file on disk is byte-identical to the returned content
+    # 磁盘上的已应用文件与返回内容逐字节一致。
     assert (tmp_path / "after" / "builder" / "SKILL.md").read_text() == after
