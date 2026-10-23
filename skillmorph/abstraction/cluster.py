@@ -13,13 +13,9 @@ from scipy.spatial.distance import pdist
 
 from .. import config, llm
 
-# 用于比较动作文本的嵌入模型。论文没有指定
-# 具体模型；此常量将该选项限定在抽象模块内。
-EMBEDDING_MODEL = "text-embedding-3-small"
-
 
 def _embed(texts: list[str], client) -> np.ndarray:
-    response = client.embeddings.create(model=EMBEDDING_MODEL, input=texts)
+    response = client.embeddings.create(model=config.EMBEDDING_MODEL, input=texts)
     return np.array([d.embedding for d in response.data], dtype=float)
 
 
@@ -39,7 +35,7 @@ def cluster_actions(abstracted_runs: list[dict], client=None) -> dict:
     if len(texts) == 1:
         labels = [1]
     else:
-        vectors = _embed(texts, client or llm.get_client())
+        vectors = _embed(texts, client or llm.get_embedding_client())
         z = linkage(pdist(vectors, metric="cosine"), method="average")
         labels = fcluster(z, t=config.CLUSTER_DISTANCE, criterion="distance")
 
