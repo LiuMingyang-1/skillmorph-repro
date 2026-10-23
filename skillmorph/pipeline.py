@@ -103,8 +103,8 @@ def run_experiment(experiment_dir, *, client=None) -> dict:
     """对 ``experiment_dir`` 执行一轮完整的流水线。
 
     ``client`` 是提供 ``chat.completions.create`` 和 ``embeddings.create``
-    接口的 OpenAI 兼容客户端（或 fake）；若为 ``None``，则使用真实的 OpenAI
-    客户端（OPENAI_API_KEY）。返回摘要字典，该摘要也会写入
+    接口的 OpenAI 兼容客户端（或 fake）；若为 ``None``，则分别使用
+    根目录 .env 配置的聊天和嵌入客户端。返回摘要字典，该摘要也会写入
     ``rounds/round_001/analysis/summary.json``。
     """
     exp = Path(experiment_dir)
