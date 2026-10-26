@@ -23,7 +23,12 @@ procedure elsewhere). Revisions must follow from the evidence: fix what the
 failure/success coverage supports, do not rewrite unrelated content, and do not
 duplicate or contradict guidance already present at the site.
 
-Return only a JSON object:
+Return only a JSON object — no prose, no markdown code fences:
 {"edits": [{"skill": "...", "artifact": "...", "lines": [<start>, <end>],
             "change": "precise description of the new or revised content"}],
  "rationale": "why these edits address the evidence without harming successes"}
+
+The response must be strictly valid JSON: inside strings escape backslashes
+as \\ and quotes as \" (never write a single backslash such as \s or \p;
+for example Windows paths appear as "C:\\tmp\\file"); use \n for newlines
+inside strings; no comments or trailing commas.

@@ -19,3 +19,7 @@ Judge the action at step {k}: "{action}"
 
 Respond with a JSON object:
 {{"introduces_error": true or false, "reason": "one sentence"}}
+
+The response must be strictly valid JSON — no prose, no markdown code
+fences: inside strings escape backslashes as \\ and quotes as \" (never
+write a single backslash such as \s or \p); no comments or trailing commas.

@@ -57,4 +57,8 @@ Mode: $mode
   {"locations": [{"skill": "<skill directory name>", "artifact": "<path relative to that skill directory>", "lines": [<start>, <end>]}],
    "rationale": "how these contents led to the suspicious action"}
 
-Return only the JSON object.
+Return only the JSON object — no prose, no markdown code fences. It must be
+strictly valid JSON: inside strings escape backslashes as \\ and quotes as
+\" (never write a single backslash such as \s or \p; for example Windows
+paths appear as "C:\\tmp\\file"); use \n for newlines inside strings; no
+comments or trailing commas.

@@ -21,8 +21,10 @@ from __future__ import annotations
 
 import json
 import shutil
+import sys
 from pathlib import Path
 
+from . import llm
 from .abstraction import abstract_run, cluster_actions
 from .attribution import coverage, mark_errors, rank
 from .revision import evaluate_and_patch, localize, propose
@@ -58,13 +60,20 @@ def _prepare_round(exp: Path) -> Path:
     round_dir = exp / "rounds" / ROUND
     round_dir.mkdir(parents=True, exist_ok=False)
     for sub in ("prompts", "skills_before", "trajectories", "analysis",
-                "revision", "skills_after"):
+                "revision", "skills_after", "raw"):
         (round_dir / sub).mkdir()
     shutil.copytree(exp / "prompts", round_dir / "prompts", dirs_exist_ok=True)
     shutil.copytree(
         exp / "skills", round_dir / "skills_before", dirs_exist_ok=True
     )
+    # chat_json 解析失败的原始模型回复随本轮产物保存，便于定位非法输出。
+    llm.set_raw_dir(round_dir / "raw")
     return round_dir
+
+
+def _stage(note: str) -> None:
+    """向 stderr 报告阶段进度；stdout 保留给最终摘要 JSON。"""
+    print(f"skillmorph: {note}", file=sys.stderr, flush=True)
 
 
 def _revision(ranked, skill_dir, runs, round_dir, *, prompt_dir, client):
@@ -72,11 +81,13 @@ def _revision(ranked, skill_dir, runs, round_dir, *, prompt_dir, client):
     rev_dir = round_dir / "revision"
     edit_sites, proposals = [], []
     for action in ranked:
+        _stage(f"revision: localizing {action['action_id']}")
         site = localize(
             action, skill_dir, runs, client=client, prompt_dir=prompt_dir
         )
         edit_sites.append(site)
         if site["locations"]:
+            _stage(f"revision: proposing edits for {action['action_id']}")
             proposal = propose(site, client=client, prompt_dir=prompt_dir)
             # evaluate_and_patch 需要编辑位置中的证据和出现记录；
             # propose() 本身只返回 action_id、edits 和 rationale。
@@ -110,6 +121,7 @@ def run_experiment(experiment_dir, *, client=None) -> dict:
     exp = Path(experiment_dir)
     prompt_dir = exp / "prompts"
     skill_dir = exp / "skills"
+    _stage(f"loading trajectories from {exp / 'data' / DATA_FILE}")
     raw_runs = _load_runs(exp / "data")
     if not raw_runs:
         raise ValueError(f"no trajectories found under {exp / 'data'}")
@@ -122,11 +134,14 @@ def run_experiment(experiment_dir, *, client=None) -> dict:
         )
 
     analysis = round_dir / "analysis"
-    runs = [
-        abstract_run(run, prompt_dir=prompt_dir, client=client)
-        for run in raw_runs
-    ]
+    runs = []
+    for i, run in enumerate(raw_runs):
+        _stage(f"abstracting run {i + 1}/{len(raw_runs)}: "
+               f"{run['task_id']}/{run['run_id']}")
+        runs.append(abstract_run(run, prompt_dir=prompt_dir, client=client))
+    _stage(f"clustering {sum(len(r['transitions']) for r in runs)} transitions")
     action_map = cluster_actions(runs, client=client)
+    _stage("marking error-introducing actions in successful runs")
     runs = [
         mark_errors(run, prompt_dir=prompt_dir, client=client)
         if run["outcome"] == "success" else run

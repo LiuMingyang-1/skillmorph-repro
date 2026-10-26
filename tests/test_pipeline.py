@@ -14,6 +14,7 @@ from pathlib import Path
 import pytest
 
 from skillmorph.pipeline import run_experiment
+from skillmorph import llm
 
 from pipeline_fixture import (
     ABSTRACTIONS,
@@ -32,6 +33,34 @@ from pipeline_fixture import (
 
 def _read_json(path):
     return json.loads(Path(path).read_text())
+
+
+def test_bad_proposal_preserves_raw_response_in_round(tmp_path, monkeypatch):
+    exp = make_experiment(tmp_path, RUNS)
+    client = FakePipelineClient(ABSTRACTIONS)
+    original = client.chat.completions.create
+    bad = '{\n"change": "invalid \\x"}'
+    proposal_calls = []
+
+    def respond(**kwargs):
+        text = "\n".join(m["content"] for m in kwargs["messages"])
+        response = original(**kwargs)
+        if "writing a revision proposal" in text:
+            proposal_calls.append(text)
+            response.choices[0].message.content = bad
+        return response
+
+    monkeypatch.setattr(client.chat.completions, "create", respond)
+    monkeypatch.setattr(llm, "_raw_dir", None)
+    with pytest.raises(json.JSONDecodeError, match="Invalid"):
+        run_experiment(exp, client=client)
+    rnd = exp / "rounds" / "round_001"
+    dumps = list((rnd / "raw").glob("response-*.txt"))
+    assert len(proposal_calls) == 1
+    assert len(dumps) == 1
+    assert dumps[0].read_bytes() == bad.encode("utf-8")
+    assert (rnd / "analysis" / "ranking.json").is_file()
+    assert not (rnd / "revision" / "evaluation.json").exists()
 
 
 def test_full_loop_writes_all_artifacts_and_revises(tmp_path):
