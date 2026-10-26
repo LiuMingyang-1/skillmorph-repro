@@ -2,7 +2,7 @@
 
 目标是复现「执行任务 → 抽象轨迹 → 可疑动作定位 → 修改 skill → 重跑验证」的完整流程。先把各部分的职责和数据流划清楚，再逐步实现。
 
-**当前进度**：单轮 pipeline 已实现（`pipeline.py` / `python -m skillmorph`）：已有轨迹 + skill → abstraction → attribution → revision，产物写 `rounds/round_001/`。execution（任务执行/判分）、evaluation（修订后重跑对比）、多轮历史（Eq.5-7）均未实现，留待后续。
+**当前进度**：单轮 pipeline 已实现（`pipeline.py` / `python -m skillmorph`）：已有轨迹 + skill → abstraction → attribution → revision，每次独立运行产物写 `runs/run_NNN/`。execution（任务执行/判分）、evaluation（修订后重跑对比）、多轮历史（Eq.5-7）均未实现，留待后续。
 
 ## 目录与职责
 
@@ -23,16 +23,16 @@ experiments/        # 所有实验的输入、提示词、skills 和结果集中
     prompts/        # 本实验初始的抽象、错误判断、定位、修订提示词
     skills/         # 本实验初始的 skill 及其引用文件
     data/           # 任务、数据集划分或已有轨迹
-    rounds/
-      round_001/
-        prompts/       # 本轮实际使用的提示词副本
-        skills_before/ # 本轮执行前的 skill
-        trajectories/  # 原始执行轨迹和判分
+    runs/
+      run_001/
+        prompts/       # 本次运行实际使用的提示词副本
+        skills_before/ # 本次运行前的 skill
+        trajectories/  # 本次运行实际使用的输入轨迹
         analysis/      # 抽象、动作映射、覆盖计数和可疑动作排名
         revision/      # 定位证据、修改建议、理由和 diff
-        skills_after/  # 本轮修订后的 skill
-        evaluation/    # 重跑结果及修订前后对比
-      round_002/    # 后续轮次沿用相同结构
+        skills_after/  # 本次运行修订后的 skill
+        raw/           # chat_json 解析失败时保存的原始模型回复
+      run_002/        # 后续独立运行沿用相同结构，自动编号
     summary.md      # 本实验的设置说明、主要结果和结论
 tests/              # 覆盖计数、打分等关键逻辑的测试与小样例
 docs/               # 本计划和必要的方法说明
@@ -51,9 +51,9 @@ docs/               # 本计划和必要的方法说明
 
 每次新实验在 `experiments/` 下单独建一个目录。实验使用的 prompts、skills、输入数据和所有结果都放在该实验内，项目根目录不再单独设置 `prompts/`、`skills/`、`data/` 或 `runs/`。
 
-实验根目录的 `prompts/` 和 `skills/` 保留初始版本；每轮保存实际使用的提示词，以及修订前后的 skill。即使后面调整提示词，也能查清前一轮用了什么。下一轮默认使用上一轮的 `skills_after/`，提示词有调整就记录在下一轮副本里，不覆盖已有轮次。
+实验根目录的 `prompts/` 和 `skills/` 保留初始版本；每次独立运行保存实际使用的提示词，以及修订前后的 skill。每次运行都从实验根目录读取输入，不自动读取上一次运行的 `skills_after/`，不覆盖已有运行目录。
 
-同一实验的迭代放在 `rounds/`；独立对照或更换实验设置时另建实验目录。大型外部数据集可以在实验的 `data/` 中记录路径和所用任务清单，不必重复复制。
+同一实验的各次运行放在 `runs/`（`run_001`、`run_002`…自动编号）；独立对照或更换实验设置时另建实验目录。大型外部数据集可以在实验的 `data/` 中记录路径和所用任务清单，不必重复复制。
 
 ## 各阶段如何衔接
 
@@ -66,7 +66,7 @@ docs/               # 本计划和必要的方法说明
   → evaluation：修订前后对比
 ```
 
-各阶段先用普通 Python 数据和 JSON 交换结果，约定好实际需要的字段即可。结果统一保存在 `experiments/<实验名>/rounds/<轮次>/` 的对应子目录；多轮演化时读取上一轮原始计数和修订历史，不另建记忆系统。
+各阶段先用普通 Python 数据和 JSON 交换结果，约定好实际需要的字段即可。结果统一保存在 `experiments/<实验名>/runs/run_NNN/` 的对应子目录；多轮演化时的历史机制未实现，届时再按论文约定，不另建记忆系统。
 
 ## 方法上需要保留的部分
 

@@ -35,41 +35,13 @@ def _read_json(path):
     return json.loads(Path(path).read_text())
 
 
-def test_bad_proposal_preserves_raw_response_in_round(tmp_path, monkeypatch):
-    exp = make_experiment(tmp_path, RUNS)
-    client = FakePipelineClient(ABSTRACTIONS)
-    original = client.chat.completions.create
-    bad = '{\n"change": "invalid \\x"}'
-    proposal_calls = []
-
-    def respond(**kwargs):
-        text = "\n".join(m["content"] for m in kwargs["messages"])
-        response = original(**kwargs)
-        if "writing a revision proposal" in text:
-            proposal_calls.append(text)
-            response.choices[0].message.content = bad
-        return response
-
-    monkeypatch.setattr(client.chat.completions, "create", respond)
-    monkeypatch.setattr(llm, "_raw_dir", None)
-    with pytest.raises(json.JSONDecodeError, match="Invalid"):
-        run_experiment(exp, client=client)
-    rnd = exp / "rounds" / "round_001"
-    dumps = list((rnd / "raw").glob("response-*.txt"))
-    assert len(proposal_calls) == 1
-    assert len(dumps) == 1
-    assert dumps[0].read_bytes() == bad.encode("utf-8")
-    assert (rnd / "analysis" / "ranking.json").is_file()
-    assert not (rnd / "revision" / "evaluation.json").exists()
-
-
 def test_full_loop_writes_all_artifacts_and_revises(tmp_path):
     exp = make_experiment(tmp_path, RUNS)
     before_tree = tree_snapshot(exp / "skills")
     client = FakePipelineClient(ABSTRACTIONS)
     summary = run_experiment(exp, client=client)
 
-    rnd = exp / "rounds" / "round_001"
+    rnd = exp / "runs" / "run_001"
     # 输入快照。
     assert (rnd / "prompts" / "abstract.txt").read_text() == (
         PROMPTS / "abstract.txt"
@@ -114,7 +86,9 @@ def test_full_loop_writes_all_artifacts_and_revises(tmp_path):
     evaluation = _read_json(rnd / "revision" / "evaluation.json")
     assert set(evaluation["selected"]) == set(located)
     assert evaluation["rejected"] == []
-    diff = (rnd / "revision" / "skills.diff").read_text()
+    diff_bytes = (rnd / "revision" / "skills.diff").read_bytes()
+    assert b"\r\n" not in diff_bytes
+    diff = diff_bytes.decode("utf-8")
     assert "a/sqlite-memory/reference/connections.md" in diff
     assert "Open a new connection per operation." in diff
 
@@ -146,14 +120,11 @@ def test_full_loop_writes_all_artifacts_and_revises(tmp_path):
             / "SKILL.md").read_text() == SKILL_MD
     assert tree_snapshot(exp / "skills") == before_tree
 
+    assert summary["run"] == "run_001"
     assert summary["runs"] == 4
     assert set(summary["selected"]) == set(located)
     assert summary["diff_empty"] is False
     assert _read_json(rnd / "analysis" / "summary.json") == summary
-
-    # 防止覆盖：对同一实验再次运行时会拒绝写入。
-    with pytest.raises(FileExistsError):
-        run_experiment(exp, client=FakePipelineClient(ABSTRACTIONS))
 
 
 def test_no_failure_coverage_leaves_skills_unchanged(tmp_path):
@@ -161,7 +132,7 @@ def test_no_failure_coverage_leaves_skills_unchanged(tmp_path):
     client = FakePipelineClient(ABSTRACTIONS_ALL_SUCCESS)
     summary = run_experiment(exp, client=client)
 
-    rnd = exp / "rounds" / "round_001"
+    rnd = exp / "runs" / "run_001"
     assert _read_json(rnd / "analysis" / "ranking.json") == []
     assert _read_json(rnd / "revision" / "proposals.json") == []
     evaluation = _read_json(rnd / "revision" / "evaluation.json")
@@ -174,3 +145,90 @@ def test_no_failure_coverage_leaves_skills_unchanged(tmp_path):
     # 完全没有调用 localize、propose 或 evaluate。
     assert not any("Mode:" in r for r in client.requests)
     assert summary["suspicious_actions"] == [] and summary["diff_empty"]
+
+
+def test_consecutive_runs_keep_separate_directories(tmp_path):
+    exp = make_experiment(tmp_path, RUNS)
+    summary1 = run_experiment(exp, client=FakePipelineClient(ABSTRACTIONS))
+    first_snapshot = tree_snapshot(exp / "runs" / "run_001")
+    summary2 = run_experiment(exp, client=FakePipelineClient(ABSTRACTIONS))
+
+    assert summary1["run"] == "run_001" and summary2["run"] == "run_002"
+    assert (exp / "runs" / "run_001").is_dir()
+    assert (exp / "runs" / "run_002").is_dir()
+    # 第二次运行完整保留了第一次的产物。
+    assert tree_snapshot(exp / "runs" / "run_001") == first_snapshot
+
+
+def test_next_run_number_skips_gaps_and_stray_entries(tmp_path):
+    exp = make_experiment(tmp_path, RUNS_ALL_SUCCESS)
+    runs_dir = exp / "runs"
+    runs_dir.mkdir()
+    (runs_dir / "run_001").mkdir()
+    (runs_dir / "run_003").mkdir()  # 编号空洞：run_002 缺省
+    (runs_dir / "notes.txt").write_text("unrelated entry")
+    (runs_dir / "run_004.txt").write_text("not a directory")
+
+    summary = run_experiment(exp, client=FakePipelineClient(ABSTRACTIONS_ALL_SUCCESS))
+    assert summary["run"] == "run_004"
+    assert (runs_dir / "run_004" / "analysis" / "summary.json").is_file()
+    assert not list((runs_dir / "run_001").iterdir())  # 已有目录未被写入
+
+
+def test_refuses_to_overwrite_existing_run_dir(tmp_path, monkeypatch):
+    from skillmorph import pipeline
+
+    exp = make_experiment(tmp_path, RUNS_ALL_SUCCESS)
+    runs_dir = exp / "runs"
+    runs_dir.mkdir()
+    monkeypatch.setattr(pipeline, "_next_run_number", lambda runs_dir: 1)
+
+    run_experiment(exp, client=FakePipelineClient(ABSTRACTIONS_ALL_SUCCESS))
+    with pytest.raises(FileExistsError):
+        run_experiment(exp, client=FakePipelineClient(ABSTRACTIONS_ALL_SUCCESS))
+
+
+def test_raw_dir_restored_on_success(tmp_path):
+    exp = make_experiment(tmp_path, RUNS_ALL_SUCCESS)
+    llm.set_raw_dir(None)
+    run_experiment(exp, client=FakePipelineClient(ABSTRACTIONS_ALL_SUCCESS))
+    assert llm._raw_dir is None
+
+    custom = tmp_path / "custom-raw"
+    llm.set_raw_dir(custom)
+    run_experiment(exp, client=FakePipelineClient(ABSTRACTIONS_ALL_SUCCESS))
+    assert llm._raw_dir == custom
+    llm.set_raw_dir(None)
+
+
+def test_raw_dir_restored_on_failure_and_dump_written(tmp_path, monkeypatch):
+    exp = make_experiment(tmp_path, RUNS)
+    client = FakePipelineClient(ABSTRACTIONS)
+    original = client.chat.completions.create
+    bad = '{\n"说明": "invalid \\x"}'
+    proposal_calls = []
+
+    def respond(**kwargs):
+        text = "\n".join(m["content"] for m in kwargs["messages"])
+        response = original(**kwargs)
+        if "writing a revision proposal" in text:
+            proposal_calls.append(text)
+            response.choices[0].message.content = bad
+        return response
+
+    monkeypatch.setattr(client.chat.completions, "create", respond)
+    custom = tmp_path / "custom-raw"
+    llm.set_raw_dir(custom)
+    with pytest.raises(json.JSONDecodeError, match="Invalid"):
+        run_experiment(exp, client=client)
+    # 异常退出同样恢复调用前的 raw 设置。
+    assert llm._raw_dir == custom
+    # 失败原文仍写入本次运行的 raw/，而不是调用前的目录。
+    dumps = list((exp / "runs" / "run_001" / "raw").glob("response-*.txt"))
+    assert len(proposal_calls) == 1
+    assert len(dumps) == 1
+    assert dumps[0].read_bytes() == bad.encode("utf-8")
+    assert (exp / "runs" / "run_001" / "analysis" / "ranking.json").is_file()
+    assert not (exp / "runs" / "run_001" / "revision" / "evaluation.json").exists()
+    assert not list(custom.glob("response-*.txt"))
+    llm.set_raw_dir(None)

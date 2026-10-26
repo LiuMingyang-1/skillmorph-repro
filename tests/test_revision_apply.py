@@ -129,13 +129,13 @@ def _git_apply(diff, before, tmp_path):
     """在包含 before 内容的临时 Git 仓库中应用 `diff`，并返回文件文本。"""
     repo = tmp_path / "repo"
     (repo / "builder").mkdir(parents=True)
-    (repo / "builder" / "SKILL.md").write_text(before)
+    (repo / "builder" / "SKILL.md").write_text(before, encoding="utf-8", newline="\n")
     run = lambda *args: subprocess.run(
         args, cwd=repo, check=True, capture_output=True, text=True
     )
     run("git", "init", "-q")
     run("git", "add", "-A")
-    (repo / "patch.diff").write_text(diff)
+    (repo / "patch.diff").write_text(diff, encoding="utf-8", newline="\n")
     run("git", "apply", "--check", "patch.diff")
     run("git", "apply", "patch.diff")
     return (repo / "builder" / "SKILL.md").read_text()

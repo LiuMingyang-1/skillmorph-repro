@@ -12,8 +12,8 @@ def main(argv=None) -> int:
     parser = argparse.ArgumentParser(
         prog="python -m skillmorph",
         description=(
-            "Run one SkillMorph loop over an experiment directory "
-            "(data/trajectories.json + prompts/ + skills/ -> rounds/round_001)."
+            "Run one independent SkillMorph pass over an experiment directory "
+            "(data/trajectories.json + prompts/ + skills/ -> runs/run_NNN)."
         ),
     )
     parser.add_argument("experiment", help="path to the experiment directory")

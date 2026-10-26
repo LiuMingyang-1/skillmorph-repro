@@ -7,22 +7,7 @@ import pytest
 
 from skillmorph import config, llm
 from skillmorph.abstraction import cluster_actions
-
-
-class _FakeChatClient:
-    """按顺序返回预设 content 的最小 fake 客户端。"""
-
-    def __init__(self, *contents):
-        self._contents = list(contents)
-        self.chat = SimpleNamespace(
-            completions=SimpleNamespace(create=self._create)
-        )
-
-    def _create(self, model, messages, **kwargs):
-        content = self._contents.pop(0)
-        return SimpleNamespace(
-            choices=[SimpleNamespace(message=SimpleNamespace(content=content))]
-        )
+from conftest import FakeClient
 
 
 def test_chat_and_embeddings_use_separate_providers(monkeypatch):
@@ -68,9 +53,9 @@ def test_chat_and_embeddings_use_separate_providers(monkeypatch):
 
     assert clients == [
         {"base_url": settings["LLM_BASE_URL"],
-         "api_key": settings["LLM_API_KEY"], "max_retries": 0, "timeout": 30.0},
+         "api_key": settings["LLM_API_KEY"], "max_retries": 1, "timeout": 120.0},
         {"base_url": settings["EMBEDDING_BASE_URL"],
-         "api_key": settings["EMBEDDING_API_KEY"], "max_retries": 0, "timeout": 30.0},
+         "api_key": settings["EMBEDDING_API_KEY"], "max_retries": 1, "timeout": 120.0},
     ]
     assert requests[0]["model"] == "test-chat-model"
     assert requests[1]["model"] == "test-embedding-model"
@@ -98,13 +83,13 @@ def _reset_raw_dir():
 
 
 def test_chat_json_parses_plain_object():
-    client = _FakeChatClient('{"a": 1}')
+    client = FakeClient('{"a": 1}')
     assert llm.chat_json(MESSAGES, client=client) == {"a": 1}
 
 
 def test_chat_json_invalid_escape_raises_and_saves_raw(tmp_path):
     bad = '{\n"change": "C:\\temp\\x"}'  # \t 合法，\x 非法
-    client = _FakeChatClient(bad)
+    client = FakeClient(bad)
     llm.set_raw_dir(tmp_path)
     with pytest.raises(json.JSONDecodeError) as err:
         llm.chat_json(MESSAGES, client=client)
@@ -124,7 +109,7 @@ def test_chat_json_invalid_escape_raises_and_saves_raw(tmp_path):
 def test_chat_json_invalid_escape_unrecoverable_without_raw_dir(tmp_path,
                                                                monkeypatch):
     # 即使落盘失败，也必须继续抛出原始解析错误。
-    client = _FakeChatClient('{"a": "unterminated')
+    client = FakeClient('{"a": "unterminated')
     monkeypatch.setenv("SKILLEMORPH_RAW_DIR", str(tmp_path / "missing"))
     monkeypatch.setattr(llm, "_save_raw_response", lambda content: None)
     with pytest.raises(json.JSONDecodeError, match="failed to parse"):
@@ -132,7 +117,7 @@ def test_chat_json_invalid_escape_unrecoverable_without_raw_dir(tmp_path,
 
 
 def test_chat_json_none_content_raises():
-    client = _FakeChatClient(None)
+    client = FakeClient(None)
     with pytest.raises(ValueError, match="empty assistant content"):
         llm.chat_json(MESSAGES, client=client)
 
@@ -145,7 +130,7 @@ def test_chat_json_none_content_raises():
 def test_chat_json_rejects_wrappers_and_multiple_objects(body, tmp_path):
     llm.set_raw_dir(tmp_path)
     with pytest.raises(json.JSONDecodeError):
-        llm.chat_json(MESSAGES, client=_FakeChatClient(body))
+        llm.chat_json(MESSAGES, client=FakeClient(body))
     dumps = list(tmp_path.glob("response-*.txt"))
     assert len(dumps) == 1
     assert dumps[0].read_bytes() == body.encode("utf-8")

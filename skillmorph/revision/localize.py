@@ -61,9 +61,7 @@ def _file_hints(action, runs, skills):
         for tr in run["transitions"]:
             used = {s for s in tr.get("skills_used", []) if s in skills}
             hints.update(f"{s}/SKILL.md" for s in used)
-            for rel in tr.get("files_read", []):
-                hints.add(rel)
-                hints.update(f"{s}/{rel}" for s in used)
+            hints.update(tr.get("files_read", []))
     return hints
 
 

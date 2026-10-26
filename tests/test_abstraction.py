@@ -61,7 +61,7 @@ RAW = {
             "action": "read_file(path='SKILL.md')",
             "observation": "skill text",
             "skills_used": ["mcp-builder"],
-            "files_read": ["SKILL.md"],
+            "files_read": ["mcp-builder/SKILL.md"],
         },
         {
             "action": "run_tests()",
@@ -73,7 +73,7 @@ RAW = {
             "action": "edit_file(path='db.py')",
             "observation": "edited",
             "skills_used": ["mcp-builder"],
-            "files_read": ["reference/node_mcp_server.md"],
+            "files_read": ["mcp-builder/reference/node_mcp_server.md"],
         },
     ],
 }
@@ -108,11 +108,11 @@ class TestAbstractRun:
         t1, t2 = out["transitions"]
         assert t1["k"] == 1 and t1["source_steps"] == [0]
         assert t1["skills_used"] == ["mcp-builder"]
-        assert t1["files_read"] == ["SKILL.md"]
+        assert t1["files_read"] == ["mcp-builder/SKILL.md"]
         # 第二个状态转移合并步骤 1 和 2：来源取两者的并集。
         assert t2["k"] == 2 and t2["source_steps"] == [1, 2]
         assert t2["skills_used"] == ["mcp-builder"]
-        assert t2["files_read"] == ["reference/node_mcp_server.md"]
+        assert t2["files_read"] == ["mcp-builder/reference/node_mcp_server.md"]
 
     def test_out_of_range_source_step_raises(self, tmp_path):
         (tmp_path / "abstract.txt").write_text("prompt body")

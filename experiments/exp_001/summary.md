@@ -14,10 +14,12 @@
   connection).
 - **Prompts**: `prompts/` — the five prompt templates for abstraction,
   error judging, localization, proposal, and evaluation.
-- **Scope**: one round only (round_001): abstraction → unified actions →
-  per-occurrence error judgment → coverage/ranking →
-  localize/propose/evaluate → revised skill tree. No execution, no
-  re-evaluation, no history.
+- **Scope**: independent runs (`runs/run_NNN/`): abstraction → unified
+  actions → per-occurrence error judgment → coverage/ranking →
+  localize/propose/evaluate → revised skill tree. Each run reads the
+  experiment root inputs; no execution, no re-evaluation, no history.
+- **Archive**: `archive/round_001/` — artifacts of an early paid attempt
+  kept as-is for reference (not read by new runs).
 
 ## Expected outcome (hand-analysis of the synthetic data)
 
@@ -27,7 +29,7 @@ database the later query hits), but a model judgment, not a guarantee —
 "open a second in-memory connection" should rank first (failure
 coverage in both failed runs plus that occurrence), localize
 to `reference/connections.md`, and yield a revision that keeps setup
-and queries on one connection. `skills_after/` and
+and queries on one connection. The run's `skills_after/` and
 `revision/skills.diff` hold the result; `analysis/` holds all
 intermediate artifacts for manual audit.
 

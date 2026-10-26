@@ -11,7 +11,7 @@ def chat_json(messages, *, model=None, client=None, temperature=None) -> dict
 ```
 
 - `client` 可注入 OpenAI 兼容 fake（带 `chat.completions.create`），离线测试不联网。
-- 无重试、无兜底；SDK `max_retries=0`。异常直接向上抛，各模块不要吞。
+- 无应用层重试、无兜底；SDK `max_retries=1`（对超时等可重试错误重试一次）。异常直接向上抛，各模块不要吞。
 - `chat_json` 以 `response_format={"type":"json_object"}` 请求并 `json.loads` 返回；prompt 必须说明期望的 JSON 结构。
 - 模型/温度/max_tokens 默认值在 `skillmorph/config.py`；`TOP_N_SUSPICIOUS`、`ERROR_WINDOW`（论文 h）、`CLUSTER_DISTANCE` 也在那里。
 - 串联入口见末尾「实验入口（pipeline）」一节；`pipeline.run_experiment` 同样接受 `client` 注入。
@@ -27,13 +27,13 @@ def chat_json(messages, *, model=None, client=None, temperature=None) -> dict
   "task": "任务自然语言描述",
   "outcome": "fail",
   "steps": [
-    {"action": "read_file(path='a.py')", "observation": "...", "skills_used": ["mcp-builder"], "files_read": ["SKILL.md"]}
+    {"action": "read_file(path='a.py')", "observation": "...", "skills_used": ["mcp-builder"], "files_read": ["mcp-builder/SKILL.md"]}
   ]
 }
 ```
 
 - `outcome`: `"success"` / `"fail"`（判分结果，执行阶段或外部数据给出）。
-- `skills_used`、`files_read`：该步 consult 的 skill 名和 skill 文件路径，供 edit-site 定位缩小搜索范围；没有就空列表。
+- `skills_used`、`files_read`：该步 consult 的 skill 名和文件路径，供 edit-site 定位缩小搜索范围；`files_read` 始终相对 `skills/` 集合根目录，包含 skill 名（如 `mcp-builder/SKILL.md`、`mcp-builder/reference/node_mcp_server.md`）；没有就空列表。
 - 一个 task 的多次 run 用 `run_id` 区分（`task_001/run_1` 形式拼全局 id）。
 
 ## 阶段 1：abstraction
@@ -52,7 +52,7 @@ def cluster_actions(abstracted_runs: list[dict], client=None) -> dict    # 同�
 {
   "task_id": "task_001", "run_id": "run_1", "outcome": "fail",
   "transitions": [
-    {"k": 1, "state_before": "仓库已克隆，未安装依赖", "action": "pip install -e .", "state_after": "依赖安装完成", "skills_used": ["mcp-builder"], "files_read": ["SKILL.md"]}
+    {"k": 1, "state_before": "仓库已克隆，未安装依赖", "action": "pip install -e .", "state_after": "依赖安装完成", "skills_used": ["mcp-builder"], "files_read": ["mcp-builder/SKILL.md"]}
   ]
 }
 ```
@@ -145,10 +145,11 @@ Prompts（返回结构必须在 prompt 中写明并与上面一致）：
 
 ```python
 # skillmorph/pipeline.py
-def run_experiment(experiment_dir, *, client=None) -> dict   # 单轮全流程 → summary dict
+def run_experiment(experiment_dir, *, client=None) -> dict   # 一次独立运行全流程 → summary dict
 ```
 
-- 输入：`experiments/<exp>/` 下 `data/trajectories.json`（一个 JSON 列表）、`prompts/`、`skills/`。
-- 写入 `rounds/round_001/`：`prompts`、`skills_before`、`trajectories`、`analysis`（`abstracted_runs.json`、`action_map.json`、`coverage.json`、`ranking.json`、`summary.json`）、`revision`（`edit_sites.json`、`proposals.json`、`evaluation.json`、`skills.diff`）、`skills_after`。
-- 已有 round 目录时 `mkdir(exist_ok=False)` 直接报错，不覆盖、不续跑。空 `locations` 的 edit site 不产生 proposal；`selected` 为空时 `skills_after` 是输入原样拷贝。
+- 输入：`experiments/<exp>/` 下 `data/trajectories.json`（一个 JSON 列表）、`prompts/`、`skills/`。每次运行独立：不读取之前运行的 `skills_after`，无多轮历史。
+- 写入 `runs/run_NNN/`（自动选择下一个可用编号，忽略编号空洞和非 run_NNN 条目）：`prompts`、`skills_before`、`trajectories`、`analysis`（`abstracted_runs.json`、`action_map.json`、`coverage.json`、`ranking.json`、`summary.json`）、`revision`（`edit_sites.json`、`proposals.json`、`evaluation.json`、`skills.diff`）、`skills_after`、`raw/`（chat_json 解析失败时的原始回复）。
+- 新目录由 `mkdir(exist_ok=False)` 创建，不会覆盖任何已有 `run_NNN`。`raw/` 设置只对本次运行生效，结束或异常时恢复调用前的值。空 `locations` 的 edit site 不产生 proposal；`selected` 为空时 `skills_after` 是输入原样拷贝。
+- summary 的 `run` 字段记录本次目录名（如 `run_001`），`runs` 为输入轨迹数。
 - CLI：`uv run python -m skillmorph <experiment_dir>`。

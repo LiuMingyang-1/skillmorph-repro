@@ -1,7 +1,8 @@
 """演化框架各阶段使用的 OpenAI Chat Completions 接口封装。
 
 聊天和嵌入分别使用根目录 .env 中的 LLM_* 和 EMBEDDING_* 配置。
-不重试、不回退，也不屏蔽错误：调用失败会继续向上抛出。
+不做应用层重试或回退；SDK 对超时等可重试错误自动重试一次，
+最终失败仍向上抛出。
 离线测试时，可注入一个提供
 `client.chat.completions.create(...)` 接口的 fake `client`。
 """
@@ -29,7 +30,7 @@ def get_client():
             raise ValueError("请在根目录 .env 中填写 LLM_API_KEY")
         _client = OpenAI(
             base_url=config.LLM_BASE_URL, api_key=config.LLM_API_KEY,
-            max_retries=0, timeout=30.0,
+            max_retries=1, timeout=120.0,
         )
     return _client
 
@@ -42,8 +43,8 @@ def get_embedding_client():
         _embedding_client = OpenAI(
             base_url=config.EMBEDDING_BASE_URL,
             api_key=config.EMBEDDING_API_KEY,
-            max_retries=0,
-            timeout=30.0,
+            max_retries=1,
+            timeout=120.0,
         )
     return _embedding_client
 
@@ -70,7 +71,8 @@ def chat(messages, *, model=None, client=None, json_mode=False, temperature=None
 # 保存 chat_json 解析失败的原始模型回复的目录。
 # 默认 None 表示使用 ``tempfile.gettempdir()/skillmorph-bad-json``（每次调用时
 # 重新解析，避免跨平台缓存错误路径）；也可用环境变量
-# SKILLEMORPH_RAW_DIR 覆盖；设置 ``set_raw_dir()`` 可将回复随产物保存在轮次目录下。
+# SKILLEMORPH_RAW_DIR 覆盖；``set_raw_dir()`` 可将回复随产物保存在本次运行
+# 目录下，调用方负责在运行结束后恢复原值。
 # 文件只写模型回复，不额外写入请求或客户端配置；模型回显的内容会原样保留。
 # POSIX 上尽量限制为属主可读，Windows 沿用目录 ACL。
 _raw_dir = None
@@ -99,10 +101,6 @@ def _save_raw_response(content) -> Path | None:
         )
         with os.fdopen(handle, "w", encoding="utf-8", newline="") as f:
             f.write(content)
-        try:
-            os.chmod(name, 0o600)  # POSIX 上限制为属主；Windows 上为无操作。
-        except OSError:
-            pass
         return Path(name)
     except OSError as exc:
         print(f"skillmorph: could not save raw model response: {exc}",

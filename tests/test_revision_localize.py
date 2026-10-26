@@ -7,7 +7,7 @@ import pytest
 from conftest import ACTION, PROMPTS, RUNS, FakeClient
 
 from skillmorph.revision import evaluate_and_patch, localize, propose
-from skillmorph.revision.skills import _relative_protocol_path, read_skill_tree
+from skillmorph.revision.skills import read_skill_tree
 
 
 def _mixed_runs():
@@ -81,10 +81,31 @@ def test_skill_paths_use_posix_protocol_separators(skill_dir):
     assert "builder/reference/db.md" in files
     assert all("\\" not in path for path in files)
 
-    # Exercise pathlib's Windows path flavor without claiming Windows I/O was run.
+    # Validate POSIX protocol separators from a Windows-flavored path.
     root = PureWindowsPath(r"skill-set")
     nested = PureWindowsPath(r"skill-set\builder\reference\db.md")
-    assert _relative_protocol_path(nested, root) == "builder/reference/db.md"
+    assert nested.relative_to(root).as_posix() == "builder/reference/db.md"
+
+
+def test_localize_file_hints_use_skill_root_relative_paths(skill_dir):
+    runs = [{
+        "task_id": "t1",
+        "run_id": "r1",
+        "outcome": "fail",
+        "transitions": [{
+            "action_id": "act_001",
+            "skills_used": ["builder"],
+            "files_read": ["builder/reference/db.md"],
+        }],
+    }]
+    client = FakeClient(json.dumps({"locations": [], "rationale": "none"}))
+
+    localize(ACTION, skill_dir, runs, client=client, prompt_dir=PROMPTS)
+
+    prompt = client.requests[0]["messages"][0]["content"]
+    assert "- builder/reference/db.md" in prompt
+    assert "- builder/builder/reference/db.md" not in prompt
+    assert "- builder/SKILL.md" in prompt
 
 
 def test_occurrence_error_marks_reach_propose_and_evaluate(

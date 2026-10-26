@@ -20,9 +20,12 @@ uv run python -m skillmorph experiments/exp_001
 ```
 
 The only argument is the experiment directory. Prints a JSON summary and
-writes `experiments/exp_001/rounds/round_001/`. The run refuses to
-overwrite an existing round directory — delete `rounds/round_001` first
-to redo it.
+writes `experiments/exp_001/runs/run_NNN/`, picking the next free number.
+Every invocation is an independent run that reads the experiment's root
+`skills/`, `prompts/`, and `data/`; it never reuses a previous run's
+`skills_after` and `mkdir(exist_ok=False)` refuses to overwrite existing
+runs. Artifacts of a failed first paid attempt are kept at
+`experiments/exp_001/archive/round_001/` for reference.
 
 ## Experiment directory layout
 
@@ -31,7 +34,7 @@ experiments/<exp>/
   prompts/            prompt templates used by every stage (see below)
   skills/             initial skill tree: <skill>/SKILL.md + artifacts
   data/trajectories.json   input trajectories (one JSON list of runs)
-  rounds/round_001/
+  runs/run_001, run_002, ...
     prompts/          copy of the prompts actually used
     skills_before/    copy of the input skill tree
     trajectories/     the consumed input runs (one file each)
@@ -40,6 +43,8 @@ experiments/<exp>/
     revision/         edit_sites.json, proposals.json,
                       evaluation.json, skills.diff
     skills_after/     revised skill tree (clean copy if nothing applied)
+    raw/              raw model replies saved on JSON parse failure
+  archive/            preserved artifacts of earlier attempts (not read)
 ```
 
 ## Input trajectory format
@@ -56,7 +61,9 @@ One run per object:
 
 - `outcome` is the run's verdict, supplied by whatever produced the data.
 - `skills_used`/`files_read` record consulted skills/artifacts; used as
-  localization hints. Optional, default empty.
+  localization hints. `files_read` paths are relative to the `skills/` root
+  and include the skill name (for example, `skill-name/reference/guide.md`).
+  Both fields are optional and default to empty.
 - A task's repeated runs are distinguished by `run_id`; coverage uses
   `task_id/run_id` as the run key.
 
@@ -97,9 +104,10 @@ Existing environment variables take precedence over `.env`. The `.env` file
 is ignored by Git; `.env.example` is the shareable template.
 Other parameters remain in `skillmorph/config.py`: `TEMPERATURE`,
 `MAX_TOKENS`, `ERROR_WINDOW` (h), `TOP_N_SUSPICIOUS`, `CLUSTER_DISTANCE`,
-and `RUNS_PER_TASK` (documented for later loops). Both clients use a 30-second
-timeout for connection, reading, writing, and connection-pool waits.
-Errors propagate without retries or fallback.
+and `RUNS_PER_TASK` (documented for later loops). Both clients use a 120-second
+timeout for connection, reading, writing, and connection-pool waits. The SDK
+retries each request once on timeouts and other retryable errors; failures
+then propagate without fallback.
 
 ## Offline tests vs. real runs
 
@@ -114,6 +122,8 @@ diff, and that inputs are preserved. All scores, selections, and
 revisions in tests are **preset replies of the fixture** — the suite
 verifies *wiring only*, not what a real model would decide.
 
-Real paid API calls have **not** been run or validated — `python -m
-skillmorph` on a real experiment is the unverified part; audit its
-`analysis/` and `revision/` output by hand.
+A real paid API run was attempted, but did not complete: it reached proposal
+generation and stopped on an invalid JSON escape. The historical partial
+artifacts are preserved under `experiments/exp_001/archive/round_001/`.
+The current changes have not been revalidated against a real API; a complete
+real run and its model-generated results remain unverified.
