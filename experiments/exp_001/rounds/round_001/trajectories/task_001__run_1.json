@@ -1,0 +1,41 @@
+{
+  "task_id": "task_001",
+  "run_id": "run_1",
+  "task": "Build a small in-memory SQLite demo: create a documents table, insert three rows, then list them.",
+  "outcome": "fail",
+  "steps": [
+    {
+      "action": "read sqlite-memory/SKILL.md and reference/connections.md",
+      "observation": "skill says to open a new :memory: connection for each operation",
+      "skills_used": [
+        "sqlite-memory"
+      ],
+      "files_read": [
+        "sqlite-memory/SKILL.md",
+        "sqlite-memory/reference/connections.md"
+      ]
+    },
+    {
+      "action": "python: connA = connect(':memory:'); create table documents; insert 3 rows",
+      "observation": "3 rows inserted",
+      "skills_used": [
+        "sqlite-memory"
+      ],
+      "files_read": []
+    },
+    {
+      "action": "python: connB = connect(':memory:') for the query step",
+      "observation": "connection opened",
+      "skills_used": [
+        "sqlite-memory"
+      ],
+      "files_read": []
+    },
+    {
+      "action": "python: connB.execute('SELECT * FROM documents')",
+      "observation": "OperationalError: no such table: documents",
+      "skills_used": [],
+      "files_read": []
+    }
+  ]
+}

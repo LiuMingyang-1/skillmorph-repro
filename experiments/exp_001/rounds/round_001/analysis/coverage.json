@@ -1,0 +1,60 @@
+{
+  "task_001": {
+    "actions": {
+      "act_001": {
+        "n_fail": 1,
+        "n_succ": 1,
+        "fail_runs": [
+          "task_001/run_1"
+        ],
+        "succ_runs": [
+          "task_001/run_2"
+        ]
+      },
+      "act_002": {
+        "n_fail": 1,
+        "n_succ": 1,
+        "fail_runs": [
+          "task_001/run_1"
+        ],
+        "succ_runs": [
+          "task_001/run_2"
+        ]
+      }
+    },
+    "f": 1,
+    "fail_runs": [
+      "task_001/run_1"
+    ]
+  },
+  "task_002": {
+    "actions": {
+      "act_001": {
+        "n_fail": 1,
+        "n_succ": 1,
+        "fail_runs": [
+          "task_002/run_1"
+        ],
+        "succ_runs": [
+          "task_002/run_2"
+        ]
+      },
+      "act_002": {
+        "n_fail": 2,
+        "n_succ": 1,
+        "fail_runs": [
+          "task_002/run_1",
+          "task_002/run_2"
+        ],
+        "succ_runs": [
+          "task_002/run_2"
+        ]
+      }
+    },
+    "f": 2,
+    "fail_runs": [
+      "task_002/run_1",
+      "task_002/run_2"
+    ]
+  }
+}

@@ -245,6 +245,6 @@ def tree_snapshot(root):
     """返回 root 下所有文件的 {relative_path: content}。"""
     root = Path(root)
     return {
-        str(p.relative_to(root)): p.read_text()
+        p.relative_to(root).as_posix(): p.read_text()
         for p in root.rglob("*") if p.is_file()
     }

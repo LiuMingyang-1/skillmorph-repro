@@ -51,9 +51,9 @@ def test_chat_and_embeddings_use_separate_providers(monkeypatch):
 
     assert clients == [
         {"base_url": settings["LLM_BASE_URL"],
-         "api_key": settings["LLM_API_KEY"], "max_retries": 0},
+         "api_key": settings["LLM_API_KEY"], "max_retries": 0, "timeout": 30.0},
         {"base_url": settings["EMBEDDING_BASE_URL"],
-         "api_key": settings["EMBEDDING_API_KEY"], "max_retries": 0},
+         "api_key": settings["EMBEDDING_API_KEY"], "max_retries": 0, "timeout": 30.0},
     ]
     assert requests[0]["model"] == "test-chat-model"
     assert requests[1]["model"] == "test-embedding-model"

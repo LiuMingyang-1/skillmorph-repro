@@ -6,14 +6,19 @@ Skill 集合位于 `skill_dir` 下，路径形式为 `skill_dir/<skill>/<artifac
 """
 
 import shutil
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+
+
+def _relative_protocol_path(path, root):
+    """Return a path relative to root using the protocol's POSIX separators."""
+    return path.relative_to(root).as_posix()
 
 
 def read_skill_tree(skill_dir):
-    """读取 skill_dir 下的所有文件，返回 {relative_path: content}。"""
+    """Read files under skill_dir keyed by POSIX relative paths."""
     skill_dir = Path(skill_dir)
     return {
-        str(path.relative_to(skill_dir)): path.read_text()
+        _relative_protocol_path(path, skill_dir): path.read_text()
         for path in sorted(skill_dir.rglob("*"))
         if path.is_file()
     }
@@ -26,7 +31,7 @@ def copy_skill_tree(skill_dir, output_dir):
 
 def write_artifact(output_dir, skill, artifact, content):
     """将一个资源文件写入 output_dir/<skill>/<artifact>。"""
-    path = Path(output_dir) / skill / artifact
+    path = Path(output_dir).joinpath(skill, *PurePosixPath(artifact).parts)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content)
     return path

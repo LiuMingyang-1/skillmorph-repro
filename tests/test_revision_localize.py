@@ -1,11 +1,13 @@
 """定位和提案测试（使用离线 fake 客户端）。"""
 
 import json
+from pathlib import PureWindowsPath
 
 import pytest
 from conftest import ACTION, PROMPTS, RUNS, FakeClient
 
 from skillmorph.revision import evaluate_and_patch, localize, propose
+from skillmorph.revision.skills import _relative_protocol_path, read_skill_tree
 
 
 def _mixed_runs():
@@ -72,6 +74,17 @@ _EMPTY_SITE = {
     "rationale": "r",
     "evidence": {"score": 0.7},
 }
+
+
+def test_skill_paths_use_posix_protocol_separators(skill_dir):
+    files = read_skill_tree(skill_dir)
+    assert "builder/reference/db.md" in files
+    assert all("\\" not in path for path in files)
+
+    # Exercise pathlib's Windows path flavor without claiming Windows I/O was run.
+    root = PureWindowsPath(r"skill-set")
+    nested = PureWindowsPath(r"skill-set\builder\reference\db.md")
+    assert _relative_protocol_path(nested, root) == "builder/reference/db.md"
 
 
 def test_occurrence_error_marks_reach_propose_and_evaluate(
@@ -149,6 +162,7 @@ def test_localize_embeds_contents_and_evidence(skill_dir):
     assert "connection per operation" in by_artifact["reference/db.md"]["content"]
     assert "npm run build" in by_artifact["SKILL.md"]["content"]
     # 第二次调用包含了选中文件及其编号内容。
+    assert "builder/reference/db.md" in client.requests[0]["messages"][0]["content"]
     assert "connection per operation" in client.requests[1]["messages"][0]["content"]
 
 

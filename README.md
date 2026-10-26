@@ -97,8 +97,9 @@ Existing environment variables take precedence over `.env`. The `.env` file
 is ignored by Git; `.env.example` is the shareable template.
 Other parameters remain in `skillmorph/config.py`: `TEMPERATURE`,
 `MAX_TOKENS`, `ERROR_WINDOW` (h), `TOP_N_SUSPICIOUS`, `CLUSTER_DISTANCE`,
-and `RUNS_PER_TASK` (documented for later loops). Errors propagate without
-retries or fallback.
+and `RUNS_PER_TASK` (documented for later loops). Both clients use a 30-second
+timeout for connection, reading, writing, and connection-pool waits.
+Errors propagate without retries or fallback.
 
 ## Offline tests vs. real runs
 

@@ -12,7 +12,7 @@ from skillmorph.revision import evaluate_and_patch
 
 def snapshot(root):
     return {
-        str(p.relative_to(root)): p.read_text()
+        p.relative_to(root).as_posix(): p.read_text()
         for p in sorted(Path(root).rglob("*"))
         if p.is_file()
     }

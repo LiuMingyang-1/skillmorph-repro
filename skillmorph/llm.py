@@ -20,7 +20,8 @@ def get_client():
         if not config.LLM_API_KEY:
             raise ValueError("请在根目录 .env 中填写 LLM_API_KEY")
         _client = OpenAI(
-            base_url=config.LLM_BASE_URL, api_key=config.LLM_API_KEY, max_retries=0
+            base_url=config.LLM_BASE_URL, api_key=config.LLM_API_KEY,
+            max_retries=0, timeout=30.0,
         )
     return _client
 
@@ -34,6 +35,7 @@ def get_embedding_client():
             base_url=config.EMBEDDING_BASE_URL,
             api_key=config.EMBEDDING_API_KEY,
             max_retries=0,
+            timeout=30.0,
         )
     return _embedding_client
 

@@ -1,0 +1,16 @@
+{
+  "create an in-memory SQLite connection connA with a users table and insert two users": "act_002",
+  "create documents table and insert three rows via connection A": "act_002",
+  "create in-memory documents table and insert 3 rows on connA": "act_002",
+  "open a second in-memory sqlite connection connB and query the users table": "act_002",
+  "open a separate in-memory connection connB and query the users table": "act_002",
+  "open in-memory sqlite connection connA, create users table, and insert two users": "act_002",
+  "open new :memory: connection B for querying": "act_002",
+  "query connA with SELECT * FROM documents": "act_002",
+  "query documents table via connection B": "act_002",
+  "query the users table via the original connection connA": "act_002",
+  "read sqlite-memory connections reference": "act_001",
+  "read sqlite-memory skill docs on connections": "act_001",
+  "read sqlite-memory/SKILL.md": "act_001",
+  "read sqlite-memory/SKILL.md for in-memory sharing guidance": "act_001"
+}

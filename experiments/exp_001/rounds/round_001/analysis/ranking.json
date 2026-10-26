@@ -1,0 +1,41 @@
+[
+  {
+    "action_id": "act_002",
+    "action_text": "create documents table and insert three rows via connection A",
+    "score": 0.7745966692414834,
+    "n_fail": 3,
+    "n_succ": 2,
+    "fail_runs": [
+      "task_001/run_1",
+      "task_002/run_1",
+      "task_002/run_2"
+    ],
+    "succ_runs": [
+      "task_001/run_2",
+      "task_002/run_2"
+    ],
+    "tasks": [
+      "task_001",
+      "task_002"
+    ]
+  },
+  {
+    "action_id": "act_001",
+    "action_text": "read sqlite-memory skill docs on connections",
+    "score": 0.5773502691896258,
+    "n_fail": 2,
+    "n_succ": 2,
+    "fail_runs": [
+      "task_001/run_1",
+      "task_002/run_1"
+    ],
+    "succ_runs": [
+      "task_001/run_2",
+      "task_002/run_2"
+    ],
+    "tasks": [
+      "task_001",
+      "task_002"
+    ]
+  }
+]

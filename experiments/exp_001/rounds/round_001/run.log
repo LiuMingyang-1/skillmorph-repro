@@ -1,0 +1,42 @@
+LOG=/tmp/skillmorph-exp001-live-_j7rhs_4.log
+COMMAND=python -u -m skillmorph experiments/exp_001
+CWD=<repo>
+STAGE=round_not_created
+STAGE=round_created_no_stage_files ELAPSED=1.0s
+HEARTBEAT=running ELAPSED=15.1s STAGE=round_created_no_stage_files
+HEARTBEAT=running ELAPSED=30.1s STAGE=round_created_no_stage_files
+STAGE=abstracted_runs,action_map,coverage,ranking ELAPSED=45.2s
+HEARTBEAT=running ELAPSED=45.2s STAGE=abstracted_runs,action_map,coverage,ranking
+HEARTBEAT=running ELAPSED=60.2s STAGE=abstracted_runs,action_map,coverage,ranking
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "<repo>/skillmorph/__main__.py", line 27, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "<repo>/skillmorph/__main__.py", line 21, in main
+    summary = run_experiment(args.experiment)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repo>/skillmorph/pipeline.py", line 143, in run_experiment
+    result = _revision(
+             ^^^^^^^^^^
+  File "<repo>/skillmorph/pipeline.py", line 80, in _revision
+    proposal = propose(site, client=client, prompt_dir=prompt_dir)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repo>/skillmorph/revision/propose.py", line 19, in propose
+    result = chat_json(
+             ^^^^^^^^^^
+  File "<repo>/skillmorph/llm.py", line 69, in chat_json
+    return json.loads(content)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Users/lmy/.local/share/uv/python/cpython-3.12.11-macos-aarch64-none/lib/python3.12/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lmy/.local/share/uv/python/cpython-3.12.11-macos-aarch64-none/lib/python3.12/json/decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/lmy/.local/share/uv/python/cpython-3.12.11-macos-aarch64-none/lib/python3.12/json/decoder.py", line 354, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Invalid \escape: line 1 column 1049 (char 1048)
+EXIT_CODE=1 ELAPSED=68.92s FINAL_STAGE=abstracted_runs,action_map,coverage,ranking

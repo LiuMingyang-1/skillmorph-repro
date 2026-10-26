@@ -1,0 +1,259 @@
+[
+  {
+    "task_id": "task_001",
+    "run_id": "run_1",
+    "outcome": "fail",
+    "task": "Build a small in-memory SQLite demo: create a documents table, insert three rows, then list them.",
+    "transitions": [
+      {
+        "k": 1,
+        "state_before": "no skill guidance consulted",
+        "action": "read sqlite-memory skill docs on connections",
+        "state_after": "guidance obtained: open a new :memory: connection per operation",
+        "skills_used": [
+          "sqlite-memory"
+        ],
+        "files_read": [
+          "sqlite-memory/SKILL.md",
+          "sqlite-memory/reference/connections.md"
+        ],
+        "source_steps": [
+          0
+        ],
+        "action_text": "read sqlite-memory skill docs on connections",
+        "action_id": "act_001"
+      },
+      {
+        "k": 2,
+        "state_before": "documented pattern known, no database yet",
+        "action": "create documents table and insert three rows via connection A",
+        "state_after": "three rows inserted in connection A's memory database",
+        "skills_used": [
+          "sqlite-memory"
+        ],
+        "files_read": [],
+        "source_steps": [
+          1
+        ],
+        "action_text": "create documents table and insert three rows via connection A",
+        "action_id": "act_002"
+      },
+      {
+        "k": 3,
+        "state_before": "data loaded in connection A",
+        "action": "open new :memory: connection B for querying",
+        "state_after": "connection B opened as a separate empty database",
+        "skills_used": [
+          "sqlite-memory"
+        ],
+        "files_read": [],
+        "source_steps": [
+          2
+        ],
+        "action_text": "open new :memory: connection B for querying",
+        "action_id": "act_002"
+      },
+      {
+        "k": 4,
+        "state_before": "separate empty connection B open",
+        "action": "query documents table via connection B",
+        "state_after": "unresolved OperationalError: no such table: documents",
+        "skills_used": [],
+        "files_read": [],
+        "source_steps": [
+          3
+        ],
+        "action_text": "query documents table via connection B",
+        "action_id": "act_002"
+      }
+    ]
+  },
+  {
+    "task_id": "task_001",
+    "run_id": "run_2",
+    "outcome": "success",
+    "task": "Build a small in-memory SQLite demo: create a documents table, insert three rows, then list them.",
+    "transitions": [
+      {
+        "k": 1,
+        "state_before": "no prior work; task not started",
+        "action": "read sqlite-memory/SKILL.md",
+        "state_after": "skill guidance loaded",
+        "skills_used": [
+          "sqlite-memory"
+        ],
+        "files_read": [
+          "sqlite-memory/SKILL.md"
+        ],
+        "source_steps": [
+          0
+        ],
+        "action_text": "read sqlite-memory/SKILL.md",
+        "action_id": "act_001",
+        "introduces_error": false,
+        "error_reason": "Reading the skill file simply loads guidance and does not produce any error or invalid state."
+      },
+      {
+        "k": 2,
+        "state_before": "skill guidance loaded; no database yet",
+        "action": "create in-memory documents table and insert 3 rows on connA",
+        "state_after": "3 rows inserted into connA's documents table",
+        "skills_used": [
+          "sqlite-memory"
+        ],
+        "files_read": [],
+        "source_steps": [
+          1
+        ],
+        "action_text": "create in-memory documents table and insert 3 rows on connA",
+        "action_id": "act_002",
+        "introduces_error": false,
+        "error_reason": "Creating the table and inserting rows succeeded and the subsequent query returned 3 rows, so no error or invalid state was produced."
+      },
+      {
+        "k": 3,
+        "state_before": "3 rows present in connA's documents table",
+        "action": "query connA with SELECT * FROM documents",
+        "state_after": "3 rows returned",
+        "skills_used": [],
+        "files_read": [],
+        "source_steps": [
+          2
+        ],
+        "action_text": "query connA with SELECT * FROM documents",
+        "action_id": "act_002",
+        "introduces_error": false,
+        "error_reason": "The SELECT query succeeded and returned 3 rows as expected, producing no error or failed validation."
+      }
+    ]
+  },
+  {
+    "task_id": "task_002",
+    "run_id": "run_1",
+    "outcome": "fail",
+    "task": "Keep a users table in an in-memory SQLite database across a login demo; insert two users, then verify they can be queried.",
+    "transitions": [
+      {
+        "k": 1,
+        "state_before": "no connection guidance loaded",
+        "action": "read sqlite-memory connections reference",
+        "state_after": "connection rules known",
+        "skills_used": [
+          "sqlite-memory"
+        ],
+        "files_read": [
+          "sqlite-memory/reference/connections.md"
+        ],
+        "source_steps": [
+          0
+        ],
+        "action_text": "read sqlite-memory connections reference",
+        "action_id": "act_001"
+      },
+      {
+        "k": 2,
+        "state_before": "connection rules known",
+        "action": "open in-memory sqlite connection connA, create users table, and insert two users",
+        "state_after": "connA has users table with 2 rows inserted",
+        "skills_used": [
+          "sqlite-memory"
+        ],
+        "files_read": [],
+        "source_steps": [
+          1
+        ],
+        "action_text": "open in-memory sqlite connection connA, create users table, and insert two users",
+        "action_id": "act_002"
+      },
+      {
+        "k": 3,
+        "state_before": "connA holds users with 2 rows",
+        "action": "open a second in-memory sqlite connection connB and query the users table",
+        "state_after": "OperationalError: no such table: users on connB",
+        "skills_used": [],
+        "files_read": [],
+        "source_steps": [
+          2
+        ],
+        "action_text": "open a second in-memory sqlite connection connB and query the users table",
+        "action_id": "act_002"
+      }
+    ]
+  },
+  {
+    "task_id": "task_002",
+    "run_id": "run_2",
+    "outcome": "success",
+    "task": "Keep a users table in an in-memory SQLite database across a login demo; insert two users, then verify they can be queried.",
+    "transitions": [
+      {
+        "k": 1,
+        "state_before": "no skill guidance consulted",
+        "action": "read sqlite-memory/SKILL.md for in-memory sharing guidance",
+        "state_after": "skill guidance available",
+        "skills_used": [
+          "sqlite-memory"
+        ],
+        "files_read": [
+          "sqlite-memory/SKILL.md"
+        ],
+        "source_steps": [
+          0
+        ],
+        "action_text": "read sqlite-memory/SKILL.md for in-memory sharing guidance",
+        "action_id": "act_001",
+        "introduces_error": false,
+        "error_reason": "Reading skill guidance is a benign informational action that does not produce or reveal any error state."
+      },
+      {
+        "k": 2,
+        "state_before": "no database or users table present",
+        "action": "create an in-memory SQLite connection connA with a users table and insert two users",
+        "state_after": "two users inserted into connA's users table",
+        "skills_used": [
+          "sqlite-memory"
+        ],
+        "files_read": [],
+        "source_steps": [
+          1
+        ],
+        "action_text": "create an in-memory SQLite connection connA with a users table and insert two users",
+        "action_id": "act_002",
+        "introduces_error": false,
+        "error_reason": "Creating connA with a users table and inserting users succeeds cleanly and is the correct setup; the later error arises from using a separate connection, not this action."
+      },
+      {
+        "k": 3,
+        "state_before": "connA holds the populated users table",
+        "action": "open a separate in-memory connection connB and query the users table",
+        "state_after": "OperationalError: no such table users on connB",
+        "skills_used": [
+          "sqlite-memory"
+        ],
+        "files_read": [],
+        "source_steps": [
+          2
+        ],
+        "action_text": "open a separate in-memory connection connB and query the users table",
+        "action_id": "act_002",
+        "introduces_error": true,
+        "error_reason": "Opening a separate in-memory connection and querying caused an OperationalError (no such table users) because in-memory databases are not shared across connections, producing a failed query."
+      },
+      {
+        "k": 4,
+        "state_before": "connB lacks the users table",
+        "action": "query the users table via the original connection connA",
+        "state_after": "two users returned from connA",
+        "skills_used": [],
+        "files_read": [],
+        "source_steps": [
+          3
+        ],
+        "action_text": "query the users table via the original connection connA",
+        "action_id": "act_002",
+        "introduces_error": false,
+        "error_reason": "Querying the users table via connA succeeds and returns two users, so no error is introduced."
+      }
+    ]
+  }
+]
