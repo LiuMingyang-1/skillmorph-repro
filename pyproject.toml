@@ -5,6 +5,7 @@ description = "Trajectory-guided fault localization for agent skill evolution (r
 requires-python = ">=3.11"
 dependencies = [
     "openai>=1.50",
+    "python-dotenv>=1.0",
     "scipy>=1.11",
 ]
 

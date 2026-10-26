@@ -14,7 +14,8 @@ re-evaluation of the revised skills, no multi-round history.
 ## Run
 
 ```bash
-export OPENAI_API_KEY=...        # real run only; tests do not need it
+# Fill in the root .env: LLM_* for chat, EMBEDDING_* for embeddings.
+# Fresh clone: cp .env.example .env
 uv run python -m skillmorph experiments/exp_001
 ```
 
@@ -81,12 +82,23 @@ files (`$placeholders`); `abstract.txt` is a system prompt;
 
 ## Configuration
 
-All defaults live in `skillmorph/config.py`: `MODEL` (`gpt-4o`),
-`TEMPERATURE`, `MAX_TOKENS`, `ERROR_WINDOW` (h), `TOP_N_SUSPICIOUS`,
-`CLUSTER_DISTANCE`, plus `RUNS_PER_TASK` (documented for later loops).
-The embedding model is `EMBEDDING_MODEL` in
-`skillmorph/abstraction/cluster.py` (`text-embedding-3-small`). The API
-key comes from `OPENAI_API_KEY`; no other provider is wired in.
+The repository-root `.env` is loaded automatically. Configure two independent
+OpenAI-compatible providers:
+
+| Purpose | Base URL | API key | Model |
+|---|---|---|---|
+| Chat | `LLM_BASE_URL` | `LLM_API_KEY` | `LLM_MODEL` |
+| Embeddings | `EMBEDDING_BASE_URL` | `EMBEDDING_API_KEY` | `EMBEDDING_MODEL` |
+
+The template uses `https://api.openai.com/v1`, `gpt-4o` for chat, and
+`text-embedding-3-small` for embeddings. Replace URLs and model names for
+your providers and fill in both keys, even when using the same provider.
+Existing environment variables take precedence over `.env`. The `.env` file
+is ignored by Git; `.env.example` is the shareable template.
+Other parameters remain in `skillmorph/config.py`: `TEMPERATURE`,
+`MAX_TOKENS`, `ERROR_WINDOW` (h), `TOP_N_SUSPICIOUS`, `CLUSTER_DISTANCE`,
+and `RUNS_PER_TASK` (documented for later loops). Errors propagate without
+retries or fallback.
 
 ## Offline tests vs. real runs
 
