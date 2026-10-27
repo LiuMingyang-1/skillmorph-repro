@@ -125,5 +125,10 @@ verifies *wiring only*, not what a real model would decide.
 A real paid API run was attempted, but did not complete: it reached proposal
 generation and stopped on an invalid JSON escape. The historical partial
 artifacts are preserved under `experiments/exp_001/archive/round_001/`.
-The current changes have not been revalidated against a real API; a complete
-real run and its model-generated results remain unverified.
+A subsequent real-API run on 2026-10-27 completed the full pipeline in about
+73 seconds; see `experiments/exp_001/runs/run_001/REPORT.md` and its
+`revision/skills.diff`. Chat and embedding requests succeeded, and the revised
+skill uses one connection throughout setup and queries. Clustering remains too
+broad, error judgments varied from the earlier attempt, and no revised-skill
+task re-execution has been performed. This synthetic smoke run demonstrates
+pipeline completion, not an improvement in task success.

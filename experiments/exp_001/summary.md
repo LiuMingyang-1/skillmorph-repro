@@ -35,9 +35,20 @@ intermediate artifacts for manual audit.
 
 ## Status
 
-Wiring verified offline (`.venv/bin/python -m pytest`, fake LLM client
-with *scripted* replies — the scores/selections in tests are preset by
-the fixture, not model output). Real-API results are **not verified** —
-running the CLI makes paid OpenAI calls and has not been done; the
-ranking/revision a real model produces is unknown until a real run is
-checked by hand.
+On 2026-10-27, commit `a912de9` completed one real-API run in about 73
+seconds (exit 0), after 52 offline tests passed. Results are preserved in
+`runs/run_001/`; see `REPORT.md`, `analysis/`, and `revision/skills.diff`.
+Both chat and embedding calls succeeded. The revision replaces the planted
+fresh-connection rule with a shared connection for setup and queries.
+
+The result has important limitations: 14 transitions map to only two action
+clusters, mixing setup, opening a second connection, and queries. Both clusters
+have the same suspiciousness score. Error-introduction judgments differ from
+the earlier archived attempt. The cause of the broad clustering is not yet
+isolated; input representation, embeddings, and the clustering threshold need
+inspection. No task was re-executed with the revised skill, so efficacy remains
+unverified. Usage and cost were not recorded.
+
+Next: inspect action representation and clustering boundaries offline before
+changing parameters or starting another paid run. Preserve this run as the
+baseline evidence.

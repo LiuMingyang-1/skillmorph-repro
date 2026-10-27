@@ -1,0 +1,34 @@
+You are writing a revision proposal for one edit site in an agent skill set.
+
+## Edit site (JSON)
+
+Fields:
+- `action_id`, `evidence`: the suspicious action and its coverage evidence
+  (score, failure/success-covering runs, tasks).
+- `occurrences`: the action's execution contexts (states before/after, outcome,
+  and the per-occurrence `introduces_error`/`error_reason` judgments where they
+  exist — null means the run was not judged, not that the step was clean; a
+  run outcome of "success" does not imply the step was error-free).
+- `locations`: the skill contents to revise — each with `skill`, `artifact`,
+  `lines` (1-based inclusive range, or null) and the full current `content`.
+- `rationale`: why these contents are blamed for the action.
+
+$edit_site_json
+
+## Your task
+
+Specify the coordinated changes required across the involved skills/artifacts so
+the guidance stays consistent (e.g. a new rule plus the matching checklist or
+procedure elsewhere). Revisions must follow from the evidence: fix what the
+failure/success coverage supports, do not rewrite unrelated content, and do not
+duplicate or contradict guidance already present at the site.
+
+Return only a JSON object — no prose, no markdown code fences:
+{"edits": [{"skill": "...", "artifact": "...", "lines": [<start>, <end>],
+            "change": "precise description of the new or revised content"}],
+ "rationale": "why these edits address the evidence without harming successes"}
+
+The response must be strictly valid JSON: inside strings escape backslashes
+as \\ and quotes as \" (never write a single backslash such as \s or \p;
+for example Windows paths appear as "C:\\tmp\\file"); use \n for newlines
+inside strings; no comments or trailing commas.

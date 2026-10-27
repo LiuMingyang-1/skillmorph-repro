@@ -1,0 +1,16 @@
+{
+  "create in-memory connection connA with a documents table and insert 3 rows": "act_002",
+  "create users table and insert two users in connection A on ':memory:'": "act_002",
+  "open :memory: connection connA, create documents table, insert 3 rows": "act_002",
+  "open a new :memory: connection connB for the query step": "act_002",
+  "open connA to ':memory:', create users table and insert 2 users": "act_002",
+  "open connB to ':memory:' and run SELECT * FROM users": "act_002",
+  "open connection B on ':memory:' and query users": "act_002",
+  "query all rows from documents via connA.execute('SELECT * FROM documents')": "act_002",
+  "query users via connection A": "act_002",
+  "read sqlite-memory skill and connections reference": "act_001",
+  "read sqlite-memory/SKILL.md": "act_001",
+  "read sqlite-memory/SKILL.md to learn in-memory SQLite usage": "act_001",
+  "read sqlite-memory/reference/connections.md for connection rules": "act_001",
+  "run SELECT * FROM documents on connB": "act_002"
+}

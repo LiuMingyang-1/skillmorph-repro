@@ -1,0 +1,304 @@
+[
+  {
+    "action_id": "act_001",
+    "locations": [
+      {
+        "skill": "sqlite-memory",
+        "artifact": "reference/connections.md",
+        "lines": [
+          5,
+          13
+        ],
+        "content": "# Connection rules for :memory: databases\n\nSetting up a table:\n\n1. Open a connection with `sqlite3.connect(\":memory:\")`.\n2. Create the schema and insert the data.\n3. Close the connection when the setup step is finished.\n\nRunning queries:\n\n1. Open a new connection with `sqlite3.connect(\":memory:\")`.\n2. Run the SELECT statement.\n3. Close the connection.\n"
+      }
+    ],
+    "rationale": "The connection rules explicitly instruct opening a new `sqlite3.connect(\":memory:\")` connection per operation (setup then queries), and closing between them. This guidance caused the suspicious action: after loading the skill/reference, the agent followed the 'new connection per operation' rule, which is incorrect for :memory: databases because each connection creates a separate, isolated in-memory database, so tables inserted in one connection are invisible to the next. The reference should instead require reusing a single shared connection for the lifetime of an in-memory database and warn that closing or reopening a :memory: connection destroys all data. Lines 5-13 need revision, and coordinated adjustment to SKILL.md lines 12 (pointer to the connection rules) may also be warranted.",
+    "evidence": {
+      "score": 0.7071067811865475,
+      "n_fail": 2,
+      "n_succ": 2,
+      "fail_runs": [
+        "task_001/run_1",
+        "task_002/run_1"
+      ],
+      "succ_runs": [
+        "task_001/run_2",
+        "task_002/run_2"
+      ],
+      "tasks": [
+        "task_001",
+        "task_002"
+      ]
+    },
+    "occurrences": [
+      {
+        "run": "task_001/run_1",
+        "outcome": "fail",
+        "step": 0,
+        "state_before": "no skill guidance loaded",
+        "action": "read sqlite-memory skill and connections reference",
+        "state_after": "guidance says use a new :memory: connection per operation",
+        "skills_used": [
+          "sqlite-memory"
+        ],
+        "files_read": [
+          "sqlite-memory/SKILL.md",
+          "sqlite-memory/reference/connections.md"
+        ],
+        "introduces_error": null,
+        "error_reason": null,
+        "prev_action": null,
+        "next_action": "open :memory: connection connA, create documents table, insert 3 rows"
+      },
+      {
+        "run": "task_001/run_2",
+        "outcome": "success",
+        "step": 0,
+        "state_before": "no skill context loaded",
+        "action": "read sqlite-memory/SKILL.md to learn in-memory SQLite usage",
+        "state_after": "skill guidance available",
+        "skills_used": [
+          "sqlite-memory"
+        ],
+        "files_read": [
+          "sqlite-memory/SKILL.md"
+        ],
+        "introduces_error": false,
+        "error_reason": "Reading skill documentation is a harmless informational action that does not produce any error or invalid state.",
+        "prev_action": null,
+        "next_action": "create in-memory connection connA with a documents table and insert 3 rows"
+      },
+      {
+        "run": "task_002/run_1",
+        "outcome": "fail",
+        "step": 0,
+        "state_before": "no skill guidance consulted",
+        "action": "read sqlite-memory/reference/connections.md for connection rules",
+        "state_after": "connection rules loaded",
+        "skills_used": [
+          "sqlite-memory"
+        ],
+        "files_read": [
+          "sqlite-memory/reference/connections.md"
+        ],
+        "introduces_error": null,
+        "error_reason": null,
+        "prev_action": null,
+        "next_action": "open connA to ':memory:', create users table and insert 2 users"
+      },
+      {
+        "run": "task_002/run_2",
+        "outcome": "success",
+        "step": 0,
+        "state_before": "no sqlite-memory skill consulted",
+        "action": "read sqlite-memory/SKILL.md",
+        "state_after": "skill guidance available",
+        "skills_used": [
+          "sqlite-memory"
+        ],
+        "files_read": [
+          "sqlite-memory/SKILL.md"
+        ],
+        "introduces_error": false,
+        "error_reason": "Reading the skill guidance file succeeded and produced no error or failed validation.",
+        "prev_action": null,
+        "next_action": "create users table and insert two users in connection A on ':memory:'"
+      }
+    ]
+  },
+  {
+    "action_id": "act_002",
+    "locations": [
+      {
+        "skill": "sqlite-memory",
+        "artifact": "reference/connections.md",
+        "lines": [
+          3,
+          13
+        ],
+        "content": "# Connection rules for :memory: databases\n\nSetting up a table:\n\n1. Open a connection with `sqlite3.connect(\":memory:\")`.\n2. Create the schema and insert the data.\n3. Close the connection when the setup step is finished.\n\nRunning queries:\n\n1. Open a new connection with `sqlite3.connect(\":memory:\")`.\n2. Run the SELECT statement.\n3. Close the connection.\n"
+      },
+      {
+        "skill": "sqlite-memory",
+        "artifact": "SKILL.md",
+        "lines": [
+          5,
+          13
+        ],
+        "content": "# sqlite-memory\n\nGuidance for building and testing with SQLite in-memory databases.\n\nUse `sqlite3.connect(\":memory:\")` for ephemeral test databases and for\ndemos that do not need persistence. It is fast, isolated, and requires no\ncleanup.\n\n## Rules\n\n- Prefer an in-memory database for unit tests and demonstrations.\n- Follow the connection rules in `reference/connections.md`.\n- Verify the final state by querying the tables you created.\n"
+      }
+    ],
+    "rationale": "reference/connections.md prescribes unsuitable actions: lines 3-7 instruct opening a connection, creating schema/inserting data, then closing the connection, and lines 9-13 instruct opening a NEW connection for queries. This directly leads to the failing pattern of populating connA and then opening connB (a separate in-memory database), yielding 'no such table' errors. The guidance omits the crucial condition that each :memory: connection is a distinct database, so data created on one connection is invisible to another; setup and queries must reuse the same connection. SKILL.md lines 5-13 reinforce the isolated in-memory pattern and defer to the connection rules without stating this shared-connection requirement, so both artifacts need coordinated revision.",
+    "evidence": {
+      "score": 0.7071067811865475,
+      "n_fail": 2,
+      "n_succ": 2,
+      "fail_runs": [
+        "task_001/run_1",
+        "task_002/run_1"
+      ],
+      "succ_runs": [
+        "task_001/run_2",
+        "task_002/run_2"
+      ],
+      "tasks": [
+        "task_001",
+        "task_002"
+      ]
+    },
+    "occurrences": [
+      {
+        "run": "task_001/run_1",
+        "outcome": "fail",
+        "step": 1,
+        "state_before": "guidance loaded, no database yet",
+        "action": "open :memory: connection connA, create documents table, insert 3 rows",
+        "state_after": "3 rows inserted in connA's database",
+        "skills_used": [
+          "sqlite-memory"
+        ],
+        "files_read": [],
+        "introduces_error": null,
+        "error_reason": null,
+        "prev_action": "read sqlite-memory skill and connections reference",
+        "next_action": "open a new :memory: connection connB for the query step"
+      },
+      {
+        "run": "task_001/run_1",
+        "outcome": "fail",
+        "step": 2,
+        "state_before": "3 rows inserted in connA",
+        "action": "open a new :memory: connection connB for the query step",
+        "state_after": "connB opened as an empty separate in-memory database",
+        "skills_used": [
+          "sqlite-memory"
+        ],
+        "files_read": [],
+        "introduces_error": null,
+        "error_reason": null,
+        "prev_action": "open :memory: connection connA, create documents table, insert 3 rows",
+        "next_action": "run SELECT * FROM documents on connB"
+      },
+      {
+        "run": "task_001/run_1",
+        "outcome": "fail",
+        "step": 3,
+        "state_before": "connB open, empty database",
+        "action": "run SELECT * FROM documents on connB",
+        "state_after": "OperationalError: no such table: documents",
+        "skills_used": [],
+        "files_read": [],
+        "introduces_error": null,
+        "error_reason": null,
+        "prev_action": "open a new :memory: connection connB for the query step",
+        "next_action": null
+      },
+      {
+        "run": "task_001/run_2",
+        "outcome": "success",
+        "step": 1,
+        "state_before": "skill guidance available, no database created",
+        "action": "create in-memory connection connA with a documents table and insert 3 rows",
+        "state_after": "3 rows inserted in connA",
+        "skills_used": [
+          "sqlite-memory"
+        ],
+        "files_read": [],
+        "introduces_error": false,
+        "error_reason": "Creating an in-memory database, table, and inserting rows succeeded, as evidenced by the subsequent query returning the 3 rows without error.",
+        "prev_action": "read sqlite-memory/SKILL.md to learn in-memory SQLite usage",
+        "next_action": "query all rows from documents via connA.execute('SELECT * FROM documents')"
+      },
+      {
+        "run": "task_001/run_2",
+        "outcome": "success",
+        "step": 2,
+        "state_before": "documents table populated with 3 rows in connA",
+        "action": "query all rows from documents via connA.execute('SELECT * FROM documents')",
+        "state_after": "3 rows returned",
+        "skills_used": [],
+        "files_read": [],
+        "introduces_error": false,
+        "error_reason": "The query succeeded and returned the 3 expected rows, so it did not produce an error or failed validation.",
+        "prev_action": "create in-memory connection connA with a documents table and insert 3 rows",
+        "next_action": null
+      },
+      {
+        "run": "task_002/run_1",
+        "outcome": "fail",
+        "step": 1,
+        "state_before": "connection rules loaded, no database yet",
+        "action": "open connA to ':memory:', create users table and insert 2 users",
+        "state_after": "2 users inserted in connA's in-memory database",
+        "skills_used": [
+          "sqlite-memory"
+        ],
+        "files_read": [],
+        "introduces_error": null,
+        "error_reason": null,
+        "prev_action": "read sqlite-memory/reference/connections.md for connection rules",
+        "next_action": "open connB to ':memory:' and run SELECT * FROM users"
+      },
+      {
+        "run": "task_002/run_1",
+        "outcome": "fail",
+        "step": 2,
+        "state_before": "2 users inserted via connA",
+        "action": "open connB to ':memory:' and run SELECT * FROM users",
+        "state_after": "OperationalError: no such table: users (separate in-memory database)",
+        "skills_used": [],
+        "files_read": [],
+        "introduces_error": null,
+        "error_reason": null,
+        "prev_action": "open connA to ':memory:', create users table and insert 2 users",
+        "next_action": null
+      },
+      {
+        "run": "task_002/run_2",
+        "outcome": "success",
+        "step": 1,
+        "state_before": "skill guidance available, no database populated",
+        "action": "create users table and insert two users in connection A on ':memory:'",
+        "state_after": "2 users inserted in connA",
+        "skills_used": [
+          "sqlite-memory"
+        ],
+        "files_read": [],
+        "introduces_error": false,
+        "error_reason": "Creating a table and inserting users in connection A succeeds and produces the expected state; the later missing-table error stems from connection B being a separate in-memory database, not from this action.",
+        "prev_action": "read sqlite-memory/SKILL.md",
+        "next_action": "open connection B on ':memory:' and query users"
+      },
+      {
+        "run": "task_002/run_2",
+        "outcome": "success",
+        "step": 2,
+        "state_before": "connA holds the users data",
+        "action": "open connection B on ':memory:' and query users",
+        "state_after": "OperationalError: no such table: users (separate in-memory DB)",
+        "skills_used": [
+          "sqlite-memory"
+        ],
+        "files_read": [],
+        "introduces_error": false,
+        "error_reason": "The OperationalError merely reveals the environment's separate in-memory database semantics, not an error introduced by the action.",
+        "prev_action": "create users table and insert two users in connection A on ':memory:'",
+        "next_action": "query users via connection A"
+      },
+      {
+        "run": "task_002/run_2",
+        "outcome": "success",
+        "step": 3,
+        "state_before": "connB failed with missing users table",
+        "action": "query users via connection A",
+        "state_after": "2 users returned",
+        "skills_used": [],
+        "files_read": [],
+        "introduces_error": false,
+        "error_reason": "Querying the shared in-memory database on connection A succeeds and returns the two users, introducing no error.",
+        "prev_action": "open connection B on ':memory:' and query users",
+        "next_action": null
+      }
+    ]
+  }
+]

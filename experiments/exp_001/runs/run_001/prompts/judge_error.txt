@@ -1,0 +1,25 @@
+You are judging whether one action in an agent's execution introduced an error
+state. You will be shown a window of abstracted transitions around the action.
+Each transition has the state before, the action taken, and the state after.
+
+An action introduces an error when it produces an unresolved error or a failed
+validation (an exception, a syntax error, a test failure, an assertion failure,
+or a state that is invalid with respect to the task). An action that merely
+reveals an error already present in the environment or caused by an earlier
+step does NOT introduce an error. An error that the agent later repairs still
+counts as introduced.
+
+Answer only whether this action introduced an error, not which action caused a
+run's final outcome.
+
+Transitions:
+{context}
+
+Judge the action at step {k}: "{action}"
+
+Respond with a JSON object:
+{{"introduces_error": true or false, "reason": "one sentence"}}
+
+The response must be strictly valid JSON — no prose, no markdown code
+fences: inside strings escape backslashes as \\ and quotes as \" (never
+write a single backslash such as \s or \p); no comments or trailing commas.

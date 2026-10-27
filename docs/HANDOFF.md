@@ -1,6 +1,16 @@
-# 设备切换交接 — 2026-10-26
+# 设备切换交接 — 2026-10-27
 
-分支：`fix/portable-paths-api-timeouts`。当前未完整跑通实验。
+当前分支：`main`，已包含路径、超时及 JSON 输出修复。
+
+## 最新状态（2026-10-27）
+
+- `a912de9` 上完成一次真实 API 全流程试跑，约 73 秒，exit 0；两类 API 均成功。
+- 试跑前离线测试 52 passed；本次未出现 JSON 解析失败。
+- 结果：`experiments/exp_001/runs/run_001/REPORT.md`；日志：`logs/run_20261027_141402.log`。
+- 已输出 Skill 修订和 diff，初始 Skill 未改动。聚类过宽、错误判定不稳定仍待检查；未做修改后任务重跑，不代表效果提升。
+- 下一步建议先离线检查动作表示与聚类边界，不预先认定阈值是唯一根因。
+
+以下保留 2026-10-26 的排查与验证记录，其中“尚未复验”均指当时状态。
 
 ## 已完成
 
@@ -45,7 +55,7 @@ JSONDecodeError: Invalid \escape: line 1 column 1049 (char 1048)
 
 ## 换设备继续
 
-1. 获取并切换此分支，`uv sync` 安装锁定依赖。
+1. 获取并切换 `main`，`uv sync` 安装锁定依赖。
 2. `.env` 不随 Git 同步，需在新设备安全配置两类 API，参考 `.env.example`；不要提交凭据。
 3. `uv run python -m pytest -q`；本次 Windows 已完整通过 52 项，包含补丁 LF 与无末尾换行应用验证。
 4. 若真实输出再次出现非法 JSON，检查 `runs/run_NNN/raw/` 中的失败原文；不要静默修补或自动重试。

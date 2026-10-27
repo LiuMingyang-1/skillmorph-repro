@@ -1,0 +1,17 @@
+{
+  "experiment": "exp_001",
+  "run": "run_001",
+  "runs": 4,
+  "actions_clustered": 14,
+  "suspicious_actions": [
+    "act_001",
+    "act_002"
+  ],
+  "selected": [
+    "act_001",
+    "act_002"
+  ],
+  "rejected": [],
+  "diff_empty": false,
+  "skills_after": "experiments/exp_001/runs/run_001/skills_after"
+}

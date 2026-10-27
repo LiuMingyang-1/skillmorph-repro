@@ -1,0 +1,32 @@
+{
+  "task_id": "task_002",
+  "run_id": "run_1",
+  "task": "Keep a users table in an in-memory SQLite database across a login demo; insert two users, then verify they can be queried.",
+  "outcome": "fail",
+  "steps": [
+    {
+      "action": "read sqlite-memory/reference/connections.md",
+      "observation": "connection rules read",
+      "skills_used": [
+        "sqlite-memory"
+      ],
+      "files_read": [
+        "sqlite-memory/reference/connections.md"
+      ]
+    },
+    {
+      "action": "python: connA = connect(':memory:'); create table users; insert 2 users",
+      "observation": "2 users inserted",
+      "skills_used": [
+        "sqlite-memory"
+      ],
+      "files_read": []
+    },
+    {
+      "action": "python: connB = connect(':memory:'); connB.execute('SELECT * FROM users')",
+      "observation": "OperationalError: no such table: users",
+      "skills_used": [],
+      "files_read": []
+    }
+  ]
+}

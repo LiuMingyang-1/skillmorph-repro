@@ -1,0 +1,51 @@
+--- a/sqlite-memory/SKILL.md
++++ b/sqlite-memory/SKILL.md
+@@ -4,10 +4,16 @@
+ 
+ Use `sqlite3.connect(":memory:")` for ephemeral test databases and for
+ demos that do not need persistence. It is fast, isolated, and requires no
+-cleanup.
++cleanup. An in-memory database is isolated per connection: each new connection
++starts empty, so create, populate, and query it on one shared connection
++rather than opening a fresh connection per step.
+ 
+ ## Rules
+ 
+ - Prefer an in-memory database for unit tests and demonstrations.
+-- Follow the connection rules in `reference/connections.md`.
++- Reuse a single connection for the whole task, because each new `:memory:`
++  connection creates a separate database and closing destroys the data. See
++  `reference/connections.md` for the detailed connection rules.
++- Reuse a single connection for schema creation, inserts, and queries; never
++  assume data created on one `:memory:` connection is visible on another.
+ - Verify the final state by querying the tables you created.
+
+--- a/sqlite-memory/reference/connections.md
++++ b/sqlite-memory/reference/connections.md
+@@ -1,13 +1,17 @@
+ # Connection rules for :memory: databases
+ 
+-Setting up a table:
++A :memory: database exists only for the lifetime of the connection that
++created it. Each `sqlite3.connect(":memory:")` call opens a NEW, independent
++database; data created on one connection is invisible to any other connection,
++and closing the connection destroys all of its data. Keep a single connection
++open for the whole setup-and-query workflow.
+ 
+-1. Open a connection with `sqlite3.connect(":memory:")`.
+-2. Create the schema and insert the data.
+-3. Close the connection when the setup step is finished.
++Setting up a table and running queries:
+ 
+-Running queries:
+-
+-1. Open a new connection with `sqlite3.connect(":memory:")`.
+-2. Run the SELECT statement.
+-3. Close the connection.
++1. Open one connection with `sqlite3.connect(":memory:")` and keep it for the
++   whole task.
++2. Create the schema and insert the data on that connection.
++3. Run all subsequent SELECT statements on the same connection; do not open a
++   second `:memory:` connection to query the data.
++4. Close the connection only when the task is fully finished, since closing
++   discards the in-memory database.

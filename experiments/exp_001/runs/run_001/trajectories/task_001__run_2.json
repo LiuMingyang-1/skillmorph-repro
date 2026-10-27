@@ -1,0 +1,32 @@
+{
+  "task_id": "task_001",
+  "run_id": "run_2",
+  "task": "Build a small in-memory SQLite demo: create a documents table, insert three rows, then list them.",
+  "outcome": "success",
+  "steps": [
+    {
+      "action": "read sqlite-memory/SKILL.md",
+      "observation": "skill read",
+      "skills_used": [
+        "sqlite-memory"
+      ],
+      "files_read": [
+        "sqlite-memory/SKILL.md"
+      ]
+    },
+    {
+      "action": "python: connA = connect(':memory:'); create table documents; insert 3 rows",
+      "observation": "3 rows inserted",
+      "skills_used": [
+        "sqlite-memory"
+      ],
+      "files_read": []
+    },
+    {
+      "action": "python: connA.execute('SELECT * FROM documents')",
+      "observation": "3 rows returned",
+      "skills_used": [],
+      "files_read": []
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "selected": [
+    "act_001",
+    "act_002"
+  ],
+  "rejected": [],
+  "skills_after": "experiments/exp_001/runs/run_001/skills_after"
+}

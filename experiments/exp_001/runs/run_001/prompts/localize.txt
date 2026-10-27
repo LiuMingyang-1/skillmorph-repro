@@ -1,0 +1,64 @@
+You are localizing the skill contents responsible for a suspicious action in an
+agent skill set. The action was identified by failure/success coverage analysis
+of repeated task executions.
+
+## Suspicious action and its execution contexts (JSON)
+
+Each occurrence records the run, outcome, step, states before/after, the action
+text, and the skills/files the agent had consulted (`skills_used`, `files_read`).
+`introduces_error`/`error_reason` are the per-occurrence error judgments already
+made on that occurrence (null when the run was not judged); a run outcome of
+"success" does not mean the step was error-free.
+
+$action_json
+
+## Skill set overview
+
+The overview and candidate contents display paths relative to the root of the
+entire skill set, so displayed paths include the skill directory name (for
+example, `sqlite-memory/SKILL.md` and
+`sqlite-memory/reference/connections.md`). In every returned location, keep
+the two path fields separate: `skill` is the skill directory name
+(`sqlite-memory`), and `artifact` is relative to that one skill directory and
+must not include the skill name (`SKILL.md` or `reference/connections.md`). Use
+POSIX `/` as the separator in every returned artifact path on all platforms.
+
+$skill_overview
+
+## Mode-specific input
+
+$candidates
+
+## Your task
+
+Mode: $mode
+
+- In `artifacts` mode: the input above lists the skill files the agent consulted
+  in the evidence runs (`skills_used`/`files_read`). Using them, the action's
+  occurrences, and the skill overview, choose the artifacts whose contents may
+  guide this action (usually 1-3 files; consult the overview, not just the
+  consulted list). Return:
+  For example, select the skill overview path
+  `sqlite-memory/reference/connections.md` as
+  `{"skill": "sqlite-memory", "artifact": "reference/connections.md"}`.
+  Never repeat the skill directory name at the start of `artifact`.
+  Return:
+  {"locations": [{"skill": "<skill directory name>", "artifact": "<path relative to that skill directory>"}],
+    "rationale": "..."}
+- In `lines` mode: the candidate contents above are line-numbered (`NNNN|`).
+  Compare the prescribed actions and applicability conditions in those contents
+  with the suspicious action: find where the guidance prescribes unsuitable
+  actions, omits necessary conditions, or conflicts with related contents. Cite
+  the line ranges that would need revision; one action may require coordinated
+  sites across several skills or artifacts. Use the same separate path fields as
+  in `artifacts` mode: for example,
+  `{"skill": "sqlite-memory", "artifact": "reference/connections.md"}`;
+  `artifact` must not contain the `sqlite-memory/` prefix. Return:
+  {"locations": [{"skill": "<skill directory name>", "artifact": "<path relative to that skill directory>", "lines": [<start>, <end>]}],
+   "rationale": "how these contents led to the suspicious action"}
+
+Return only the JSON object — no prose, no markdown code fences. It must be
+strictly valid JSON: inside strings escape backslashes as \\ and quotes as
+\" (never write a single backslash such as \s or \p; for example Windows
+paths appear as "C:\\tmp\\file"); use \n for newlines inside strings; no
+comments or trailing commas.
