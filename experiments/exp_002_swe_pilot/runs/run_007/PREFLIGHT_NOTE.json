@@ -1,0 +1,5 @@
+{
+  "synthetic_preflight": true,
+  "note": "agent action was a deterministic --agent-cmd file write (echo | base64 -d > src/calculator.py), NOT a model/agent trajectory. Do not treat as an agent run. outcome is a scoring-discrimination check, not evidence of agent ability.",
+  "implementation": "known_correct"
+}

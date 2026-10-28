@@ -100,9 +100,9 @@ python run.py --run-dir /path/to/runs/run_001 --cleanup
 - **真实执行要求镜像固定**：digest 与 platform 均必填（`image@sha256:` + 显式 `--platform` + `--entrypoint sleep infinity`）；--run-dir 复用 setup 登记的环境/plan，命令行只能补登记缺失字段，冲突拒绝；已提供 digest/platform 必须匹配 `sha256:`+64hex / `os/arch[/variant]` 格式（非法值即便登记过也拒绝）；登记时 digest 未知（plan 浮动 tag）的，run 补齐后用同一 run_id 重建受控 plan，否则拒绝；dry-run 允许 unknown。
 - **容器按 run 隔离**：`swesk-<task_id>-<run_NNN>-<run_id>`（run_id=uuid 前 12 位，跨输出根不重名）；开始前 `docker rm -f` 清同名残留；clone 目标非空即拒绝；`rev-parse HEAD` 与固定 commit 逐一核验。
 - **Skill 注入核验**：清空 `/home/dev/.claude/skills` 后 `docker cp` 注入，再在容器内重算逐文件 sha256 清单与宿主记录比对，不一致即 setup 失败；空树/逃逸 symlink 的 skills 根直接拒绝。
-- **固定执行身份**：setup 预检 dev 存在、非 root、无 sudo——整个执行/终止协议依赖该 UID；`chown -R dev:dev /workspace <skills>` 并以 dev 身份验证可写。
+- **固定执行身份**：setup 预检 dev 存在、非 root、无实际提权能力——整个执行/终止协议依赖该 UID；`chown -R dev:dev /workspace <skills>` 并以 dev 身份验证可写。CTA 镜像 `/etc/sudoers` 给 dev 配 `NOPASSWD:ALL`，setup 的 `revoke_dev_sudo` 步在容器内删该授权（不动镜像），随后以 `su dev -c 'sudo -n true'` 行为核验无提权。注意 `docker exec` 默认继承镜像 `User=dev`，所有 root 侧命令必须显式 `--user root`（P1-A 实机发现并修复）。
 - **TASK 传递**：`docker exec --env TASK=<texto>` —— 容器内 sh 展开 `$TASK`，不做宿主侧前缀赋值。
-- **终止边界（UID 范围）**：agent 以 dev 身份后台运行，stdout/stderr/退出码落容器文件；结束/到时后由 root 身份对整个 dev UID `pkill -TERM→KILL` 并 `pgrep -U dev` 核验无存活进程——不依赖命令行正则、pid 文件或 reparent 进程树。终止失败/有残余 => `invalid` 拒评；判分前再做一次 root 侧 UID 存活性核验。合法 timeout 下 exit 文件缺席是协议允许（记 `fail(task_timeout)`）；无 timeout 且 exit 文件缺席 => `runner_error` invalid。docker 断连/命令错误立即 `invalid`，绝不误记 task_timeout。
+- **终止边界（UID 范围）**：agent 以 dev 身份后台运行，stdout/stderr/退出码落容器文件；结束/到时后由 root 身份对 dev UID 下**存活非 init** 进程 TERM→KILL 并核验无残余——枚举时排除容器 init（PID 1，镜像 `User=dev` 下 `sleep infinity` 常驻不可杀）与僵尸（Z state，init 不回收会滞留）。不依赖命令行正则、pid 文件或 reparent 进程树。终止失败/有残余 => `invalid` 拒评；判分前再做一次 root 侧 UID 存活性核验。合法 timeout 下 exit 文件缺席是协议允许（记 `fail(task_timeout)`）；无 timeout 且 exit 文件缺席 => `runner_error` invalid。docker 断连/命令错误立即 `invalid`，绝不误记 task_timeout。
 - **状态门**：`run.py` 只接受 `status=pending` 的 `--run-dir`（task/skills-hash/repo-commit 不一致即拒绝）；pending run 由 `run.lock`（O_EXCL 小文件）原子占锁、已存在即拒；新 run 目录在任何 mutation 前 `acquire_run_dir` 原子占用（exist_ok=False）并立刻落盘完整 config+running；`evaluate.py` 只判 `status=executed` 且要核验 execution.json 的终止证据（terminated/clean/容器名/HEAD 一致）、setup.ok、dev 进程已灭——不能只看 status 标签；`--container` 与登记不同一律拒绝。
 - **任务白名单**：manifest `status != "ready"`（batch9 `unsuitable_starting_point`、batch10 `pending_pytest_cov`）默认拒绝真实执行；dry-run 仍可打印计划。
 - **判分严格规则**：JUnit 解析核对 suite 属性与实际 case 逐状态分类（重复 case/多状态 case/计数不符/非法时间全部 invalid）；只 0/1 是合法 pytest 结论（exit 2/3/4/5、137 等其它退出 + 任何 XML => `invalid`）；errors 保守 `invalid`（不混环境）；skip => `fail`（非产物矛盾）；exit/XML 矛盾、0 测试 => `invalid`；全部通过 + exit 0 => `success`。stdout/stderr/JUnit XML 原文全量保存。staging 目录 root 建后 `chown dev` 并 dev 验证可写；pytest 以 `-c /dev/null`、`PYTEST_ADDOPTS=`、`PYTEST_DISABLE_PLUGIN_AUTOLOAD=1`、清 PYTHONPATH 隔离运行（dev 身份）。
@@ -118,13 +118,17 @@ python run.py --run-dir /path/to/runs/run_001 --cleanup
 
 ## 待验证（P1，需 Docker）
 
-**全部仍是未验证项——以上协议只经 mock/纯 shell 替身离线测试，从未在真实容器执行过：**
+**P1-A（2026-10-28，OrbStack + amd64 镜像经 Rosetta）已实测完成项——见 `docs/SWE_SKILLS_P1_ENV_REPORT.md`：**
 
-1. 拉取镜像并记录 digest 与平台（Apple Silicon 注意 amd64 兼容性）——当前 `docker_image_digest`/`platform` 为 `null`，未假填。
-2. dev 身份预检在镜像内是否成立（dev 存在、非 root、无 sudo、可写 `/workspace`/`/tmp`）；`pkill -U dev`/`pgrep -U dev` 在容器 init 环境下行为需实机确认（busybox vs procps 语法差异）。setup 计划已含 `command -v pgrep pkill` 与 `-U` 语义探测，busybox 缺失会 fail closed；UID 检查的退出码语义（0 存活/1 无存活/其它非零冒错）今天已用纯 shell PATH stub 真实 sh 验证，但容器内 procps 存在性仍 P1。
-3. 容器内 clone 目标 repo 至 `/workspace/python` 并检出固定 commit。
-4. 未修改 scaffold 跑验收测试应失败（验证判分能识别未完成）；写入已知正确实现应通过（验证区分度）——**判分区分度未验证**。
-5. `pytest -c /dev/null` 隔离下测试 import/REPO_DIR 语义正常；`PYTEST_DISABLE_PLUGIN_AUTOLOAD=1` 下 batch10 的 pytest-cov 检查会 skip→fail（该任务仍 `pending`，不在常规跑）。
-6. 连续初始化两次确认起点一致。
-7. **首次正式 run 前必须冻结实际收集到的 pytest nodeids 与数量并核对判分结果**——manifest `test_count` 是静态标注，parametrize/收集差异未核对；`config.required_tests`/`evaluation.required_tests_check` 已实现静态 test_* 函数预检与 JUnit 收集名比对记录（有参数化的任务 `verifiable=False` 即 manifest count 不可信），未完成冻结核对前不能开始模型试跑。
+1. ~~拉取镜像并记录 digest 与平台~~ ✅ digest `sha256:51d4…b974`、platform `linux/amd64` 已回填 manifest。
+2. ~~dev 身份预检~~ ✅ dev=uid 1001 非 root；发现镜像 `NOPASSWD:ALL` → setup 增加 `revoke_dev_sudo` + `sudo -n true` 行为核验；`docker exec` 须显式 `--user root`（镜像 `User=dev` 会被继承）；UID 终止边界排除 init(PID1)/僵尸。
+3. ~~容器内 clone + 固定 commit 核验~~ ✅ fetch+checkout+`rev-parse HEAD` 全过。
+4. ~~判分区分度~~ ✅ 未改 scaffold→`fail`（14 全 fail）；注入已知正确实现→14/14 PASS（正确参考实现存 `experiments/exp_002_swe_pilot/preflight/fixtures/batch1_calculator_correct.py`）。
+5. `pytest -c /dev/null` 隔离 ✅ 正常；**pytest-cov 镜像未预装**，容器内 pip 有网可装——batch10 仍 `pending`。
+6. ~~连续两次初始化起点一致~~ ✅ run_003/run_004。
+
+**P1-B（下一会话）待办：**
+
+7. **首次正式 run 前必须冻结实际收集到的 pytest nodeids 与数量并核对判分结果**——batch1 已核对（14=14）；其余批次未核。parametrize 任务 manifest count 不可信，未完成冻结核对前不能开始模型试跑。
 8. batch9 是否排除/修复后纳入，待决定。
+9. batch10 pytest-cov：决定容器内联网安装 vs 固化派生镜像。

@@ -148,12 +148,15 @@ def _run_sh_with_path(shell, stub_dir):
 
 
 class TestDevUidShellRealSh:
-    """pgrep/pkill 退出码语义：纯 shell PATH stub 真实 sh 调用（绝不真杀进程）。"""
+    """kill/check shell 的 pgrep 退出码语义：纯 shell PATH stub 真实 sh
+    调用（绝不真杀进程；存活枚举依赖 /proc——stub 下只验证 pgrep
+    分支语义与输出 0/1，容器内真实行为由 P1 实机核验）。"""
 
-    def test_pgrep_exit0_means_alive_output0(self, tmp_path):
+    def test_pgrep_exit0_no_output_means_clean_output1(self, tmp_path):
+        # pgrep 0 但无 PID 输出（stub 不回显）→ 枚举为空 → 输出 1
         stub = _stub_bin(tmp_path, "pgrep", "#!/bin/sh\nexit 0\n")
         r = _run_sh_with_path(dev_uid_check_shell(), stub)
-        assert r.returncode == 0 and r.stdout.strip() == "0"
+        assert r.returncode == 0 and r.stdout.strip() == "1"
 
     def test_pgrep_exit1_means_dead_output1(self, tmp_path):
         stub = _stub_bin(tmp_path, "pgrep", "#!/bin/sh\nexit 1\n")
@@ -164,7 +167,7 @@ class TestDevUidShellRealSh:
         stub = _stub_bin(tmp_path, "pgrep",
                          "#!/bin/sh\necho 'pgrep: invalid option' >&2\nexit 2\n")
         r = _run_sh_with_path(dev_uid_check_shell(), stub)
-        assert r.returncode != 0 and "invalid option" in r.stderr
+        assert r.returncode != 0 and "pgrep -U dev exited 2" in r.stderr
         assert r.stdout.strip() not in ("0", "1")
 
     def test_pgrep_127_fails_not_dead(self, tmp_path):
@@ -172,22 +175,23 @@ class TestDevUidShellRealSh:
         r = _run_sh_with_path(dev_uid_check_shell(), stub)
         assert r.returncode != 0
 
-    def test_pkill_0_and_1_legal(self, tmp_path):
-        stub = _stub_bin(tmp_path, "pkill", "#!/bin/sh\nexit ${PKILL_RC:-1}\n")
+    def test_kill_pgrep_0_and_1_legal(self, tmp_path):
+        stub = _stub_bin(tmp_path, "pgrep",
+                         "#!/bin/sh\nexit ${PGREP_RC:-1}\n")
         for rc in (0, 1):
             import os
-            os.environ["PKILL_RC"] = str(rc)
+            os.environ["PGREP_RC"] = str(rc)
             r = _run_sh_with_path(dev_uid_kill_shell(), stub)
             assert r.returncode == 0, rc
 
-    def test_pkill_2_fails(self, tmp_path):
-        stub = _stub_bin(tmp_path, "pkill",
-                         "#!/bin/sh\necho 'pkill: bad flag' >&2\nexit 2\n")
+    def test_kill_pgrep_2_fails(self, tmp_path):
+        stub = _stub_bin(tmp_path, "pgrep",
+                         "#!/bin/sh\necho 'pgrep: bad flag' >&2\nexit 2\n")
         r = _run_sh_with_path(dev_uid_kill_shell(), stub)
-        assert r.returncode != 0 and "bad flag" in r.stderr
+        assert r.returncode != 0
 
-    def test_pkill_127_fails(self, tmp_path):
-        stub = _stub_bin(tmp_path, "pkill", "#!/bin/sh\nexit 127\n")
+    def test_kill_pgrep_127_fails(self, tmp_path):
+        stub = _stub_bin(tmp_path, "pgrep", "#!/bin/sh\nexit 127\n")
         r = _run_sh_with_path(dev_uid_kill_shell(), stub)
         assert r.returncode != 0
 

@@ -1,0 +1,36 @@
+{
+  "task_id": "tdd-workflow-batch1",
+  "frozen": "2026-10-28",
+  "collected_count": 14,
+  "manifest_test_count": 14,
+  "nodeids": [
+    "tests/batch1/test_tdd_workflow.py::TestTddWorkflow::test_calculator_file_exists",
+    "tests/batch1/test_tdd_workflow.py::TestTddWorkflow::test_calculator_compiles",
+    "tests/batch1/test_tdd_workflow.py::TestTddWorkflow::test_class_exists",
+    "tests/batch1/test_tdd_workflow.py::TestTddWorkflow::test_progressive_no_discount_below_100",
+    "tests/batch1/test_tdd_workflow.py::TestTddWorkflow::test_progressive_10_off_at_100",
+    "tests/batch1/test_tdd_workflow.py::TestTddWorkflow::test_progressive_25_off_at_200",
+    "tests/batch1/test_tdd_workflow.py::TestTddWorkflow::test_category_discount_10_percent",
+    "tests/batch1/test_tdd_workflow.py::TestTddWorkflow::test_category_discount_only_promo",
+    "tests/batch1/test_tdd_workflow.py::TestTddWorkflow::test_vip_5_percent_off",
+    "tests/batch1/test_tdd_workflow.py::TestTddWorkflow::test_svip_10_percent_off",
+    "tests/batch1/test_tdd_workflow.py::TestTddWorkflow::test_all_discounts_stacked",
+    "tests/batch1/test_tdd_workflow.py::TestTddWorkflow::test_zero_amount",
+    "tests/batch1/test_tdd_workflow.py::TestTddWorkflow::test_empty_cart",
+    "tests/batch1/test_tdd_workflow.py::TestTddWorkflow::test_invalid_tier_handled"
+  ],
+  "source": {
+    "how": "JUnit test_names from three formal evaluated runs (evaluation.json stats.test_names); identical in run_005/006/007",
+    "runs": [
+      "experiments/exp_002_swe_pilot/runs/run_005/evaluation.json",
+      "experiments/exp_002_swe_pilot/runs/run_006/evaluation.json",
+      "experiments/exp_002_swe_pilot/runs/run_007/evaluation.json"
+    ],
+    "collect_command": "python -m pytest -c /dev/null -p no:cacheprovider tests/batch1/test_tdd_workflow.py -v --tb=short --junitxml=junit.xml (staged at /tmp/benchmark_tests, PYTEST_DISABLE_PLUGIN_AUTOLOAD=1, PYTHONPATH cleared, user=dev)",
+    "required_tests_check": {
+      "count_mismatch": false,
+      "collected_count": 14,
+      "manifest_test_count": 14
+    }
+  }
+}

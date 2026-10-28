@@ -53,38 +53,69 @@ INVALID_EVALUATOR = "evaluator_error"
 _EXEC_IDENTITY = CONTAINER_DEV_USER
 
 
-def dev_uid_kill_shell() -> str:
-    """对整个 dev UID 的存活进程 TERM→KILL（root 侧执行）。
+# dev-UID 存活进程枚举规则（内联在 kill/check shell 中）：排除容器
+# init（PID 1）与僵尸（Z state——容器 init ``sleep infinity`` 不
+# wait() 孤儿，被杀的 agent 后代长期以 defunct 滞留，若计入则永
+# 远判定「有残余」）。存活 = 非 PID 1 且 /proc stat 非 Z。
+# /proc/<pid>/stat 的 comm 字段可含空格与括号（进程名截断 15 字节
+# 内允许任意字符），按空白取 $3 会错位——必须取最后一个 ')' 之
+# 后的第一个字段。pgrep 退出码语义：0=有匹配 / 1=无匹配 / 其它
+# =工具异常（fail closed，不得当「无残余」处理）。
 
-    pkill 退出码 0/1 视为合法（1 = 无匹配进程），其余一律非零退出——
-    工具本身坏掉不能算杀完。
+# POSIX sh 函数：从 /proc/<pid>/stat 提取 state 字段（最后一
+# 个 ')' 之后第一个空白分隔字段）。读取失败输出空串。
+_PROC_STATE_FN = (
+    '_st() { '
+    'read -r _l < /proc/$1/stat 2>/dev/null || { echo; return; }; '
+    '_l=${_l##*) }; echo "${_l%% *}"; '
+    '}; '
+)
+
+
+def dev_uid_kill_shell() -> str:
+    """对 dev UID 下全部**存活非 init**进程 TERM→KILL（root 侧执行）。
+
+    pgrep 异常 → 非零退出（fail closed）；kill 送错不阻断，终止判
+    定由 dev_uid_check_shell 的存活性核验给出。
     """
     u = _EXEC_IDENTITY
     return (
-        f"rc=0; "
-        f"pkill -TERM -U {u}; "
-        f"case $? in 0|1) : ;; *) rc=$? ;; esac; "
+        _PROC_STATE_FN +
+        f"pgrep_rc=0; pids=$(pgrep -U {u} 2>/dev/null) || pgrep_rc=$?; "
+        f"case $pgrep_rc in 0|1) : ;; *) exit $pgrep_rc ;; esac; "
+        f"for p in $pids; do "
+        f"st=$(_st \"$p\"); "
+        f"[ \"$p\" != \"1\" ] && [ \"$st\" != \"Z\" ] "
+        f"&& kill -TERM \"$p\" 2>/dev/null; done; "
         f"sleep 2; "
-        f"pkill -KILL -U {u}; "
-        f"case $? in 0|1) : ;; *) rc2=$?; [ $rc -eq 0 ] && rc=$rc2 ;; esac; "
-        f"exit $rc")
+        f"pgrep_rc=0; pids=$(pgrep -U {u} 2>/dev/null) || pgrep_rc=$?; "
+        f"case $pgrep_rc in 0|1) : ;; *) exit $pgrep_rc ;; esac; "
+        f"for p in $pids; do "
+        f"st=$(_st \"$p\"); "
+        f"[ \"$p\" != \"1\" ] && [ \"$st\" != \"Z\" ] "
+        f"&& kill -KILL \"$p\" 2>/dev/null; done; "
+        f"exit 0")
 
 
 def dev_uid_check_shell() -> str:
-    """核验 dev UID 无存活进程；stdout 输出 1（无）/0（有）。
+    """核验 dev UID 无存活非 init 进程；stdout 输出 1（无）/0（有）。
 
-    pgrep 退出码 0 → 有进程（输出 0）；1 → 无进程（输出 1）；其它 →
-    非零退出。
+    pgrep 异常（退出码 >=2）→ shell 非零退出，fail closed。
     """
     u = _EXEC_IDENTITY
     return (
-        f"pgrep -U {u} >/dev/null; "
-        f"rc=$?; "
-        f"case $rc in "
-        f"0) echo 0 ;; "
-        f"1) echo 1 ;; "
-        f"*) echo \"pgrep -U {u} exited $rc\" >&2; exit $rc ;; "
-        f"esac")
+        _PROC_STATE_FN +
+        f"pgrep_rc=0; pids=$(pgrep -U {u} 2>/dev/null) || pgrep_rc=$?; "
+        f"case $pgrep_rc in "
+        f"0|1) : ;; "
+        f"*) echo \"pgrep -U {u} exited $pgrep_rc\" >&2; "
+        f"exit $pgrep_rc ;; esac; "
+        f"leftover=0; "
+        f"for p in $pids; do "
+        f"st=$(_st \"$p\"); "
+        f"[ \"$p\" != \"1\" ] && [ \"$st\" != \"Z\" ] && leftover=1; "
+        f"done; "
+        f"echo $((1 - leftover))")
 
 
 def build_cleanup_plan(container: str) -> dict:

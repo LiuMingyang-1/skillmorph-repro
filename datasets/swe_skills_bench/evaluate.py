@@ -288,7 +288,7 @@ def main(argv=None) -> int:
              "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"},
         user="dev")
     stage_cmds = [
-        docker_exec_argv(container, stage_shell),
+        docker_exec_argv(container, stage_shell, user="root"),
         copy_argv,
         docker_exec_argv(container, verify_shell),
         pytest_argv,
@@ -313,7 +313,8 @@ def main(argv=None) -> int:
 
         # 判分前 root 复核：dev UID 不得有存活 agent 进程
         pres = executor.run(docker_exec_argv(container,
-                                             dev_uid_check_shell()),
+                                             dev_uid_check_shell(),
+                                             user="root"),
                             timeout=args.exec_timeout_sec)
         if not (pres.ok and pres.stdout.strip() == "1"):
             staging_error = ("residual dev/agent processes still alive "
@@ -321,7 +322,7 @@ def main(argv=None) -> int:
                              f"err={pres.error or pres.stderr[:200]!r}) "
                              "— refusing to score an unverified stop")
         if staging_error is None:
-            _step(docker_exec_argv(container, stage_shell),
+            _step(docker_exec_argv(container, stage_shell, user="root"),
                   args.exec_timeout_sec,
                   "stage dir failed (chown/writable check included)")
         if staging_error is None:

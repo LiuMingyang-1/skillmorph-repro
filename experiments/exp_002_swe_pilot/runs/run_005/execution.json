@@ -1,0 +1,40 @@
+{
+  "agent_cmd": "echo \"SYNTHETIC PREFLIGHT: no change made to scaffold (unmodified baseline)\" && exit 0",
+  "agent_timeout_sec": 300,
+  "container_name": "swesk-tdd-workflow-batch1-run_005-3c58affb20b4",
+  "run_id": "3c58affb20b4",
+  "timed_out": false,
+  "duration_sec": 0.041128542012302205,
+  "agent_termination": {
+    "terminated": true,
+    "kill_exit": 0,
+    "kill_error": null,
+    "check_stdout": "1",
+    "check_error": null
+  },
+  "exit_code": 0,
+  "test_visibility_check": {
+    "staging_dir_probe": "clean"
+  },
+  "dev_process_verify": {
+    "clean": true,
+    "stdout": "1",
+    "error": null
+  },
+  "diff": {
+    "ok": true,
+    "git_diff_stdout": "",
+    "git_diff_stdout_exit_code": 0,
+    "git_status_porcelain": "",
+    "git_status_porcelain_exit_code": 0,
+    "untracked_list_raw": "",
+    "untracked_list_raw_exit_code": 0,
+    "untracked_files": [],
+    "head_after_raw": "a1a2d04ae69bd50aba9dac2783737dfda8f048c9\n",
+    "head_after_raw_exit_code": 0,
+    "head_after": "a1a2d04ae69bd50aba9dac2783737dfda8f048c9"
+  },
+  "exit_file_present": true,
+  "outcome": null,
+  "outcome_reason": null
+}

@@ -1,0 +1,178 @@
+{
+  "task_id": "tdd-workflow-batch1",
+  "test_file": "tests/batch1/test_tdd_workflow.py",
+  "evaluator": "pytest+junitxml",
+  "staged_at": "/tmp/benchmark_tests",
+  "outcome": "fail",
+  "outcome_reason": "test_failures",
+  "pytest_exit_code": 1,
+  "junit_xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites name=\"pytest tests\"><testsuite name=\"pytest\" errors=\"0\" failures=\"14\" skipped=\"0\" tests=\"14\" time=\"0.178\" timestamp=\"2026-10-28T04:22:50.977801+00:00\" hostname=\"7542e5c5a94a\"><testcase classname=\".TestTddWorkflow\" name=\"test_calculator_file_exists\" time=\"0.001\"><failure message=\"AssertionError: src/calculator.py is missing&#10;assert False&#10; +  where False = &lt;function isfile at 0x7fffff1d0220&gt;('/workspace/python/src/calculator.py')&#10; +    where &lt;function isfile at 0x7fffff1d0220&gt; = &lt;module 'posixpath' (frozen)&gt;.isfile&#10; +      where &lt;module 'posixpath' (frozen)&gt; = os.path\">test_tdd_workflow.py:32: in test_calculator_file_exists\n    assert os.path.isfile(fpath), \"src/calculator.py is missing\"\nE   AssertionError: src/calculator.py is missing\nE   assert False\nE    +  where False = &lt;function isfile at 0x7fffff1d0220&gt;('/workspace/python/src/calculator.py')\nE    +    where &lt;function isfile at 0x7fffff1d0220&gt; = &lt;module 'posixpath' (frozen)&gt;.isfile\nE    +      where &lt;module 'posixpath' (frozen)&gt; = os.path</failure></testcase><testcase classname=\".TestTddWorkflow\" name=\"test_calculator_compiles\" time=\"0.090\"><failure message=\"AssertionError: Syntax error:&#10;  [Errno 2] No such file or directory: 'src/calculator.py'&#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['python', '-m', 'py_compile', 'src/calculator.py'], returncode=1, stdout='', stderr=&quot;[Errno 2] No such file or directory: 'src/calculator.py'&quot;).returncode\">test_tdd_workflow.py:43: in test_calculator_compiles\n    assert result.returncode == 0, f\"Syntax error:\\n{result.stderr}\"\nE   AssertionError: Syntax error:\nE     [Errno 2] No such file or directory: 'src/calculator.py'\nE   assert 1 == 0\nE    +  where 1 = CompletedProcess(args=['python', '-m', 'py_compile', 'src/calculator.py'], returncode=1, stdout='', stderr=\"[Errno 2] No such file or directory: 'src/calculator.py'\").returncode</failure></testcase><testcase classname=\".TestTddWorkflow\" name=\"test_class_exists\" time=\"0.001\"><failure message=\"ModuleNotFoundError: No module named 'src.calculator'\">test_tdd_workflow.py:61: in test_class_exists\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import\n    ???\n&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load\n    ???\n&lt;frozen importlib._bootstrap&gt;:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'</failure></testcase><testcase classname=\".TestTddWorkflow\" name=\"test_progressive_no_discount_below_100\" time=\"0.000\"><failure message=\"ModuleNotFoundError: No module named 'src.calculator'\">test_tdd_workflow.py:68: in test_progressive_no_discount_below_100\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import\n    ???\n&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load\n    ???\n&lt;frozen importlib._bootstrap&gt;:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'</failure></testcase><testcase classname=\".TestTddWorkflow\" name=\"test_progressive_10_off_at_100\" time=\"0.000\"><failure message=\"ModuleNotFoundError: No module named 'src.calculator'\">test_tdd_workflow.py:77: in test_progressive_10_off_at_100\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import\n    ???\n&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load\n    ???\n&lt;frozen importlib._bootstrap&gt;:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'</failure></testcase><testcase classname=\".TestTddWorkflow\" name=\"test_progressive_25_off_at_200\" time=\"0.000\"><failure message=\"ModuleNotFoundError: No module named 'src.calculator'\">test_tdd_workflow.py:84: in test_progressive_25_off_at_200\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import\n    ???\n&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load\n    ???\n&lt;frozen importlib._bootstrap&gt;:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'</failure></testcase><testcase classname=\".TestTddWorkflow\" name=\"test_category_discount_10_percent\" time=\"0.000\"><failure message=\"ModuleNotFoundError: No module named 'src.calculator'\">test_tdd_workflow.py:93: in test_category_discount_10_percent\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import\n    ???\n&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load\n    ???\n&lt;frozen importlib._bootstrap&gt;:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'</failure></testcase><testcase classname=\".TestTddWorkflow\" name=\"test_category_discount_only_promo\" time=\"0.000\"><failure message=\"ModuleNotFoundError: No module named 'src.calculator'\">test_tdd_workflow.py:112: in test_category_discount_only_promo\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import\n    ???\n&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load\n    ???\n&lt;frozen importlib._bootstrap&gt;:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'</failure></testcase><testcase classname=\".TestTddWorkflow\" name=\"test_vip_5_percent_off\" time=\"0.000\"><failure message=\"ModuleNotFoundError: No module named 'src.calculator'\">test_tdd_workflow.py:129: in test_vip_5_percent_off\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import\n    ???\n&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load\n    ???\n&lt;frozen importlib._bootstrap&gt;:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'</failure></testcase><testcase classname=\".TestTddWorkflow\" name=\"test_svip_10_percent_off\" time=\"0.000\"><failure message=\"ModuleNotFoundError: No module named 'src.calculator'\">test_tdd_workflow.py:136: in test_svip_10_percent_off\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import\n    ???\n&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load\n    ???\n&lt;frozen importlib._bootstrap&gt;:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'</failure></testcase><testcase classname=\".TestTddWorkflow\" name=\"test_all_discounts_stacked\" time=\"0.000\"><failure message=\"ModuleNotFoundError: No module named 'src.calculator'\">test_tdd_workflow.py:145: in test_all_discounts_stacked\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import\n    ???\n&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load\n    ???\n&lt;frozen importlib._bootstrap&gt;:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'</failure></testcase><testcase classname=\".TestTddWorkflow\" name=\"test_zero_amount\" time=\"0.000\"><failure message=\"ModuleNotFoundError: No module named 'src.calculator'\">test_tdd_workflow.py:165: in test_zero_amount\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import\n    ???\n&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load\n    ???\n&lt;frozen importlib._bootstrap&gt;:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'</failure></testcase><testcase classname=\".TestTddWorkflow\" name=\"test_empty_cart\" time=\"0.000\"><failure message=\"ModuleNotFoundError: No module named 'src.calculator'\">test_tdd_workflow.py:172: in test_empty_cart\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import\n    ???\n&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load\n    ???\n&lt;frozen importlib._bootstrap&gt;:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'</failure></testcase><testcase classname=\".TestTddWorkflow\" name=\"test_invalid_tier_handled\" time=\"0.000\"><failure message=\"ModuleNotFoundError: No module named 'src.calculator'\">test_tdd_workflow.py:178: in test_invalid_tier_handled\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import\n    ???\n&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load\n    ???\n&lt;frozen importlib._bootstrap&gt;:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'</failure></testcase></testsuite></testsuites>",
+  "stats": {
+    "total": 14,
+    "passed": 0,
+    "failed": 14,
+    "skipped": 0,
+    "errors": 0,
+    "testcase_count": 14,
+    "test_names": [
+      "test_calculator_file_exists",
+      "test_calculator_compiles",
+      "test_class_exists",
+      "test_progressive_no_discount_below_100",
+      "test_progressive_10_off_at_100",
+      "test_progressive_25_off_at_200",
+      "test_category_discount_10_percent",
+      "test_category_discount_only_promo",
+      "test_vip_5_percent_off",
+      "test_svip_10_percent_off",
+      "test_all_discounts_stacked",
+      "test_zero_amount",
+      "test_empty_cart",
+      "test_invalid_tier_handled"
+    ],
+    "duration_sec": 0.178,
+    "failed_tests": [
+      ".TestTddWorkflow::test_calculator_file_exists",
+      ".TestTddWorkflow::test_calculator_compiles",
+      ".TestTddWorkflow::test_class_exists",
+      ".TestTddWorkflow::test_progressive_no_discount_below_100",
+      ".TestTddWorkflow::test_progressive_10_off_at_100",
+      ".TestTddWorkflow::test_progressive_25_off_at_200",
+      ".TestTddWorkflow::test_category_discount_10_percent",
+      ".TestTddWorkflow::test_category_discount_only_promo",
+      ".TestTddWorkflow::test_vip_5_percent_off",
+      ".TestTddWorkflow::test_svip_10_percent_off",
+      ".TestTddWorkflow::test_all_discounts_stacked",
+      ".TestTddWorkflow::test_zero_amount",
+      ".TestTddWorkflow::test_empty_cart",
+      ".TestTddWorkflow::test_invalid_tier_handled"
+    ],
+    "skipped_tests": []
+  },
+  "stdout": "============================= test session starts ==============================\nplatform linux -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python\nrootdir: /dev\nconfigfile: null\ncollecting ... collected 14 items\n\n../../dev::TestTddWorkflow::test_calculator_file_exists FAILED           [  7%]\n../../dev::TestTddWorkflow::test_calculator_compiles FAILED              [ 14%]\n../../dev::TestTddWorkflow::test_class_exists FAILED                     [ 21%]\n../../dev::TestTddWorkflow::test_progressive_no_discount_below_100 FAILED [ 28%]\n../../dev::TestTddWorkflow::test_progressive_10_off_at_100 FAILED        [ 35%]\n../../dev::TestTddWorkflow::test_progressive_25_off_at_200 FAILED        [ 42%]\n../../dev::TestTddWorkflow::test_category_discount_10_percent FAILED     [ 50%]\n../../dev::TestTddWorkflow::test_category_discount_only_promo FAILED     [ 57%]\n../../dev::TestTddWorkflow::test_vip_5_percent_off FAILED                [ 64%]\n../../dev::TestTddWorkflow::test_svip_10_percent_off FAILED              [ 71%]\n../../dev::TestTddWorkflow::test_all_discounts_stacked FAILED            [ 78%]\n../../dev::TestTddWorkflow::test_zero_amount FAILED                      [ 85%]\n../../dev::TestTddWorkflow::test_empty_cart FAILED                       [ 92%]\n../../dev::TestTddWorkflow::test_invalid_tier_handled FAILED             [100%]\n\n=================================== FAILURES ===================================\n_________________ TestTddWorkflow.test_calculator_file_exists __________________\ntest_tdd_workflow.py:32: in test_calculator_file_exists\n    assert os.path.isfile(fpath), \"src/calculator.py is missing\"\nE   AssertionError: src/calculator.py is missing\nE   assert False\nE    +  where False = <function isfile at 0x7fffff1d0220>('/workspace/python/src/calculator.py')\nE    +    where <function isfile at 0x7fffff1d0220> = <module 'posixpath' (frozen)>.isfile\nE    +      where <module 'posixpath' (frozen)> = os.path\n___________________ TestTddWorkflow.test_calculator_compiles ___________________\ntest_tdd_workflow.py:43: in test_calculator_compiles\n    assert result.returncode == 0, f\"Syntax error:\\n{result.stderr}\"\nE   AssertionError: Syntax error:\nE     [Errno 2] No such file or directory: 'src/calculator.py'\nE   assert 1 == 0\nE    +  where 1 = CompletedProcess(args=['python', '-m', 'py_compile', 'src/calculator.py'], returncode=1, stdout='', stderr=\"[Errno 2] No such file or directory: 'src/calculator.py'\").returncode\n______________________ TestTddWorkflow.test_class_exists _______________________\ntest_tdd_workflow.py:61: in test_class_exists\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n<frozen importlib._bootstrap>:1387: in _gcd_import\n    ???\n<frozen importlib._bootstrap>:1360: in _find_and_load\n    ???\n<frozen importlib._bootstrap>:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'\n____________ TestTddWorkflow.test_progressive_no_discount_below_100 ____________\ntest_tdd_workflow.py:68: in test_progressive_no_discount_below_100\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n<frozen importlib._bootstrap>:1387: in _gcd_import\n    ???\n<frozen importlib._bootstrap>:1360: in _find_and_load\n    ???\n<frozen importlib._bootstrap>:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'\n________________ TestTddWorkflow.test_progressive_10_off_at_100 ________________\ntest_tdd_workflow.py:77: in test_progressive_10_off_at_100\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n<frozen importlib._bootstrap>:1387: in _gcd_import\n    ???\n<frozen importlib._bootstrap>:1360: in _find_and_load\n    ???\n<frozen importlib._bootstrap>:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'\n________________ TestTddWorkflow.test_progressive_25_off_at_200 ________________\ntest_tdd_workflow.py:84: in test_progressive_25_off_at_200\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n<frozen importlib._bootstrap>:1387: in _gcd_import\n    ???\n<frozen importlib._bootstrap>:1360: in _find_and_load\n    ???\n<frozen importlib._bootstrap>:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'\n______________ TestTddWorkflow.test_category_discount_10_percent _______________\ntest_tdd_workflow.py:93: in test_category_discount_10_percent\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n<frozen importlib._bootstrap>:1387: in _gcd_import\n    ???\n<frozen importlib._bootstrap>:1360: in _find_and_load\n    ???\n<frozen importlib._bootstrap>:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'\n______________ TestTddWorkflow.test_category_discount_only_promo _______________\ntest_tdd_workflow.py:112: in test_category_discount_only_promo\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n<frozen importlib._bootstrap>:1387: in _gcd_import\n    ???\n<frozen importlib._bootstrap>:1360: in _find_and_load\n    ???\n<frozen importlib._bootstrap>:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'\n____________________ TestTddWorkflow.test_vip_5_percent_off ____________________\ntest_tdd_workflow.py:129: in test_vip_5_percent_off\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n<frozen importlib._bootstrap>:1387: in _gcd_import\n    ???\n<frozen importlib._bootstrap>:1360: in _find_and_load\n    ???\n<frozen importlib._bootstrap>:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'\n___________________ TestTddWorkflow.test_svip_10_percent_off ___________________\ntest_tdd_workflow.py:136: in test_svip_10_percent_off\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n<frozen importlib._bootstrap>:1387: in _gcd_import\n    ???\n<frozen importlib._bootstrap>:1360: in _find_and_load\n    ???\n<frozen importlib._bootstrap>:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'\n__________________ TestTddWorkflow.test_all_discounts_stacked __________________\ntest_tdd_workflow.py:145: in test_all_discounts_stacked\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n<frozen importlib._bootstrap>:1387: in _gcd_import\n    ???\n<frozen importlib._bootstrap>:1360: in _find_and_load\n    ???\n<frozen importlib._bootstrap>:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'\n_______________________ TestTddWorkflow.test_zero_amount _______________________\ntest_tdd_workflow.py:165: in test_zero_amount\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n<frozen importlib._bootstrap>:1387: in _gcd_import\n    ???\n<frozen importlib._bootstrap>:1360: in _find_and_load\n    ???\n<frozen importlib._bootstrap>:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'\n_______________________ TestTddWorkflow.test_empty_cart ________________________\ntest_tdd_workflow.py:172: in test_empty_cart\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n<frozen importlib._bootstrap>:1387: in _gcd_import\n    ???\n<frozen importlib._bootstrap>:1360: in _find_and_load\n    ???\n<frozen importlib._bootstrap>:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'\n__________________ TestTddWorkflow.test_invalid_tier_handled ___________________\ntest_tdd_workflow.py:178: in test_invalid_tier_handled\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n<frozen importlib._bootstrap>:1387: in _gcd_import\n    ???\n<frozen importlib._bootstrap>:1360: in _find_and_load\n    ???\n<frozen importlib._bootstrap>:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'\n-------------- generated xml file: /tmp/benchmark_tests/junit.xml --------------\n=========================== short test summary info ============================\nFAILED ../../dev::TestTddWorkflow::test_calculator_file_exists - AssertionErr...\nFAILED ../../dev::TestTddWorkflow::test_calculator_compiles - AssertionError:...\nFAILED ../../dev::TestTddWorkflow::test_class_exists - ModuleNotFoundError: N...\nFAILED ../../dev::TestTddWorkflow::test_progressive_no_discount_below_100 - M...\nFAILED ../../dev::TestTddWorkflow::test_progressive_10_off_at_100 - ModuleNot...\nFAILED ../../dev::TestTddWorkflow::test_progressive_25_off_at_200 - ModuleNot...\nFAILED ../../dev::TestTddWorkflow::test_category_discount_10_percent - Module...\nFAILED ../../dev::TestTddWorkflow::test_category_discount_only_promo - Module...\nFAILED ../../dev::TestTddWorkflow::test_vip_5_percent_off - ModuleNotFoundErr...\nFAILED ../../dev::TestTddWorkflow::test_svip_10_percent_off - ModuleNotFoundE...\nFAILED ../../dev::TestTddWorkflow::test_all_discounts_stacked - ModuleNotFoun...\nFAILED ../../dev::TestTddWorkflow::test_zero_amount - ModuleNotFoundError: No...\nFAILED ../../dev::TestTddWorkflow::test_empty_cart - ModuleNotFoundError: No ...\nFAILED ../../dev::TestTddWorkflow::test_invalid_tier_handled - ModuleNotFound...\n============================== 14 failed in 0.18s ==============================\n",
+  "stderr": "",
+  "mode": "container",
+  "required_tests_check": {
+    "manifest_test_count": 14,
+    "collected_count": 14,
+    "expected_functions": null,
+    "missing_functions": null,
+    "count_mismatch": false
+  },
+  "command_log": [
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "--user",
+        "root",
+        "swesk-tdd-workflow-batch1-run_005-3c58affb20b4",
+        "sh",
+        "-c",
+        "_st() { read -r _l < /proc/$1/stat 2>/dev/null || { echo; return; }; _l=${_l##*) }; echo \"${_l%% *}\"; }; pgrep_rc=0; pids=$(pgrep -U dev 2>/dev/null) || pgrep_rc=$?; case $pgrep_rc in 0|1) : ;; *) echo \"pgrep -U dev exited $pgrep_rc\" >&2; exit $pgrep_rc ;; esac; leftover=0; for p in $pids; do st=$(_st \"$p\"); [ \"$p\" != \"1\" ] && [ \"$st\" != \"Z\" ] && leftover=1; done; echo $((1 - leftover))"
+      ],
+      "cwd": null,
+      "timeout_sec": 60,
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_sec": 0.09138637500291225,
+      "stdout_tail": "1\n",
+      "stderr_tail": ""
+    },
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "--user",
+        "root",
+        "swesk-tdd-workflow-batch1-run_005-3c58affb20b4",
+        "sh",
+        "-c",
+        "rm -rf /tmp/benchmark_tests && mkdir -p /tmp/benchmark_tests && chown -R dev:dev /tmp/benchmark_tests && su -s /bin/sh dev -c 'test -w /tmp/benchmark_tests'"
+      ],
+      "cwd": null,
+      "timeout_sec": 60,
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_sec": 0.10668858300778084,
+      "stdout_tail": "",
+      "stderr_tail": ""
+    },
+    {
+      "argv": [
+        "docker",
+        "cp",
+        "/Users/lmy/Documents/code/skillmorph-repro/datasets/swe_skills_bench/tests/batch1/test_tdd_workflow.py",
+        "swesk-tdd-workflow-batch1-run_005-3c58affb20b4:/tmp/benchmark_tests/test_tdd_workflow.py"
+      ],
+      "cwd": null,
+      "timeout_sec": 60,
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_sec": 0.013231958000687882,
+      "stdout_tail": "",
+      "stderr_tail": ""
+    },
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "swesk-tdd-workflow-batch1-run_005-3c58affb20b4",
+        "sh",
+        "-c",
+        "cd /tmp/benchmark_tests && sha256sum test_tdd_workflow.py"
+      ],
+      "cwd": null,
+      "timeout_sec": 60,
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_sec": 0.046813167005893774,
+      "stdout_tail": "c5fc09cedf1d3cc6f1a4077cc6ea4ac30bac3db9a6ac18495991b6c0228adbf7  test_tdd_workflow.py\n",
+      "stderr_tail": ""
+    },
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "--user",
+        "dev",
+        "--env",
+        "REPO_DIR=/workspace/python",
+        "--env",
+        "PYTHONPATH=",
+        "--env",
+        "PYTEST_ADDOPTS=",
+        "--env",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+        "swesk-tdd-workflow-batch1-run_005-3c58affb20b4",
+        "sh",
+        "-c",
+        "cd /tmp/benchmark_tests && python -m pytest -c /dev/null -p no:cacheprovider test_tdd_workflow.py -v --tb=short --junitxml=/tmp/benchmark_tests/junit.xml"
+      ],
+      "cwd": null,
+      "timeout_sec": 300,
+      "exit_code": 1,
+      "timed_out": false,
+      "duration_sec": 0.4061729999957606,
+      "stdout_tail": "- ModuleNotFoundError: N...\nFAILED ../../dev::TestTddWorkflow::test_progressive_no_discount_below_100 - M...\nFAILED ../../dev::TestTddWorkflow::test_progressive_10_off_at_100 - ModuleNot...\nFAILED ../../dev::TestTddWorkflow::test_progressive_25_off_at_200 - ModuleNot...\nFAILED ../../dev::TestTddWorkflow::test_category_discount_10_percent - Module...\nFAILED ../../dev::TestTddWorkflow::test_category_discount_only_promo - Module...\nFAILED ../../dev::TestTddWorkflow::test_vip_5_percent_off - ModuleNotFoundErr...\nFAILED ../../dev::TestTddWorkflow::test_svip_10_percent_off - ModuleNotFoundE...\nFAILED ../../dev::TestTddWorkflow::test_all_discounts_stacked - ModuleNotFoun...\nFAILED ../../dev::TestTddWorkflow::test_zero_amount - ModuleNotFoundError: No...\nFAILED ../../dev::TestTddWorkflow::test_empty_cart - ModuleNotFoundError: No ...\nFAILED ../../dev::TestTddWorkflow::test_invalid_tier_handled - ModuleNotFound...\n============================== 14 failed in 0.18s ==============================\n",
+      "stderr_tail": ""
+    },
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "swesk-tdd-workflow-batch1-run_005-3c58affb20b4",
+        "sh",
+        "-c",
+        "cat /tmp/benchmark_tests/junit.xml"
+      ],
+      "cwd": null,
+      "timeout_sec": 60,
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_sec": 0.055368040993926115,
+      "stdout_tail": "otFoundError: No module named 'src.calculator'</failure></testcase><testcase classname=\".TestTddWorkflow\" name=\"test_invalid_tier_handled\" time=\"0.000\"><failure message=\"ModuleNotFoundError: No module named 'src.calculator'\">test_tdd_workflow.py:178: in test_invalid_tier_handled\n    calc = self._get_calculator()\n           ^^^^^^^^^^^^^^^^^^^^^^\ntest_tdd_workflow.py:51: in _get_calculator\n    mod = importlib.import_module(\"src.calculator\")\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n/usr/lib/python3.12/importlib/__init__.py:90: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import\n    ???\n&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load\n    ???\n&lt;frozen importlib._bootstrap&gt;:1324: in _find_and_load_unlocked\n    ???\nE   ModuleNotFoundError: No module named 'src.calculator'</failure></testcase></testsuite></testsuites>",
+      "stderr_tail": ""
+    }
+  ]
+}

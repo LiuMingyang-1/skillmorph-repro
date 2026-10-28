@@ -27,9 +27,9 @@
   },
   "environment": {
     "docker_image": "zhangyiiiiii/swe-skills-bench-python",
-    "docker_image_digest": null,
-    "docker_image_platform": null,
-    "digest_note": "Digest not recorded in CTA config or HF dataset; cannot be resolved without Docker Hub access. Must be pinned at first pull and recorded here before any benchmark run. Do not fabricate.",
+    "docker_image_digest": "sha256:51d40310cdf44d00b3e383af1c4467bc460e6a3a25fedb1f9fab6a8d7b77b974",
+    "docker_image_platform": "linux/amd64",
+    "digest_note": "Pinned 2026-10-28 from Docker Hub pull (RepoDigest verified). Image is linux/amd64 — on Apple Silicon hosts it runs under emulation (OrbStack Rosetta/qemu). Environment checks (P1-A): Ubuntu 24.04, Python 3.12.3, pytest 9.0.2, git 2.43.0, procps-ng 4.0.4 pgrep/pkill with -U, user dev uid=1001 (non-root but member of sudo group with NOPASSWD: ALL — privilege boundary caveat documented in P1 env report).",
     "setup_commands": [],
     "pre_process": null,
     "env_vars": {},
@@ -190,8 +190,7 @@
     "tests/batch10/test_tdd_workflow.py": "d7ee5d79294791ff920146d88b2b216b4bea6f77eade30d59b1322a92b3043d3"
   },
   "pending_verification": [
-    "Docker image digest + platform (must pin on first pull; do not fabricate)",
-    "Whether zhangyiiiiii/swe-skills-bench-python image contains python+pytest+git",
+    "Whether zhangyiiiiii/swe-skills-bench-python image contains python+pytest+git — CONFIRMED 2026-10-28 (python 3.12.3 / pytest 9.0.2 / git 2.43.0)",
     "batch10 needs pytest-cov available offline/pre-installed; otherwise its coverage test skips -> strict fail, and the task stays 'pending'",
     "Upstream repo reachable at pinned commit from inside container (network_mode=bridge)",
     "Baseline check: unmodified scaffold must fail acceptance tests (verifies tests discriminate)",

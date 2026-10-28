@@ -72,7 +72,9 @@ class TestSetup:
         assert cfg["task_id"] == "tdd-workflow-batch1"
         state = json.loads((run_dir / "run_state.json").read_text())
         assert state["status"] == "pending"
-        assert cfg["environment"]["docker_image_digest"] is None
+        # digest 现已回填 manifest（P1-A 首拉固定）；登记值即镜像固定值
+        assert cfg["environment"]["docker_image_digest"] \
+            == "sha256:51d40310cdf44d00b3e383af1c4467bc460e6a3a25fedb1f9fab6a8d7b77b974"
 
     def test_empty_skills_dir_rejected(self, tmp_path):
         empty = tmp_path / "empty"
@@ -228,7 +230,17 @@ class TestRunDryRun:
                 "--output-dir", str(tmp_path / "runs"),
             ])
 
-    def test_real_run_requires_image_digest(self, tmp_path, skills_dir):
+    def test_real_run_requires_image_digest(self, tmp_path, skills_dir,
+                                            monkeypatch):
+        """manifest digest/platform 未登记（旧版）时真实执行必须拒绝。
+
+        现在 manifest 已固定镜像（P1-A 回填），该场景通过把 manifest
+        环境字段置空模拟「未固定」状态来验证拒绝逻辑仍在。
+        """
+        man = common.load_manifest()
+        man["environment"]["docker_image_digest"] = None
+        man["environment"]["docker_image_platform"] = None
+        monkeypatch.setattr(run_mod, "load_manifest", lambda p=None: man)
         rc = run_mod.main([
             "--task-id", "tdd-workflow-batch1",
             "--skills-dir", str(skills_dir),
@@ -271,9 +283,9 @@ class _FakeExec(common.Executor):
         joined = " ".join(argv)
         if any(a.startswith("AGENT_CMD=") for a in argv):
             return R(exit_code=self.agent_exit)
-        if "pkill -TERM -U dev" in joined or "pkill -KILL -U dev" in joined:
+        if "kill -TERM" in joined or "kill -KILL" in joined:
             return R(exit_code=0)
-        if "pgrep -U dev" in joined and "echo $dead" in joined:
+        if "leftover=" in joined:
             return R(exit_code=0,
                      stdout=("1" if self.dead else "0") + "\n")
         if "cat /tmp/agent.exit" in joined or "test -f /tmp/agent.exit" in joined:
@@ -294,9 +306,6 @@ class _FakeExec(common.Executor):
             return R(exit_code=0, stdout="AGENTERR\n")
         if "benchmark_tests" in joined:
             return R(exit_code=0, stdout="clean\n")
-        if "pgrep -U dev" in joined and "case $rc" in joined:
-            return R(exit_code=0,
-                     stdout=("1" if self.dead else "0") + "\n")
         if "command -v pgrep" in joined or "pgrep -U dev" in joined:
             return R(exit_code=0)
         return R(exit_code=0)

@@ -1,0 +1,17 @@
+{
+  "agent_cmd": "echo \"agent noop for preflight\" > /dev/null; sleep 1",
+  "agent_timeout_sec": 60,
+  "container_name": "swesk-tdd-workflow-batch1-run_002-ce59a36e6cd8",
+  "run_id": "ce59a36e6cd8",
+  "timed_out": false,
+  "duration_sec": 2.133330292010214,
+  "agent_termination": {
+    "terminated": false,
+    "kill_exit": 0,
+    "kill_error": null,
+    "check_stdout": "0",
+    "check_error": null
+  },
+  "outcome": "invalid",
+  "outcome_reason": "agent_termination_failed"
+}

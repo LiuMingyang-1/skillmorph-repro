@@ -66,8 +66,10 @@ class ScriptedExec(common.Executor):
             return self.R(argv, exit_code=None, error="docker: connect lost")
 
         # --- setup steps ---------------------------------------------------
-        if "sudo -l -U dev" in joined:
-            # 模拟 `! sudo -l -U dev`：dev 无 sudo → 整个 shell 退出码 0
+        if "sudo -n true" in joined:
+            # 模拟 dev 无实际提权能力：sudo -n true 失败 → 第一条 shell
+            # (sudo && fail || true) 走 true 分支 exit 0；第二条
+            # (! sudo -n true) 也 exit 0
             return self.R(argv, exit_code=0)
         if "id -u dev" in joined:
             return self.R(argv)  # dev exists, non-root
@@ -86,14 +88,14 @@ class ScriptedExec(common.Executor):
             if self.exit_file is None:
                 return self.R(argv, exit_code=0, stdout="")
             return self.R(argv, stdout=self.exit_file + "\n")
-        if "pkill -TERM -U dev" in joined or "pkill -KILL -U dev" in joined:
+        if "kill -TERM" in joined or "kill -KILL" in joined:
             self.dev_procs.clear()
             return self.R(argv)
-        if "pgrep -U dev" in joined and "case $rc" in joined:
+        if "leftover=" in joined:
             return self.R(argv,
                           stdout=("1" if not self.dev_procs else "0") + "\n")
         if "command -v pgrep" in joined or "pgrep -U dev" in joined:
-            # 新增 setup 预检：工具存在且 -U 语义返回 0/1
+            # setup 预检：工具存在且 -U 语义返回 0/1
             return self.R(argv)
 
         # --- artifacts/leak/diff -------------------------------------------
@@ -290,9 +292,9 @@ class TestFullFlow:
 
         class ZombieExec(ScriptedExec):
             def run(self, argv, **kw):
-                # pkill 成功返回但进程重生了——check 仍见存活
+                # kill 成功返回但进程重生了——check 仍见存活
                 joined = " ".join(argv)
-                if "pgrep -U dev" in joined and "case $rc" in joined:
+                if "leftover=" in joined:
                     self.dev_procs = {999}  # 始终回 0
                 return super().run(argv, **kw)
 

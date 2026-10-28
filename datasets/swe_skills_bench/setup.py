@@ -75,6 +75,13 @@ def build_setup_plan(manifest: dict, task: dict, skills_dir: Path,
     if platform:
         create_argv += ["--platform", platform]
     create_argv += [
+        # init 以 root 运行（镜像 User=dev，默认会让 PID 1 的 sleep 也
+        # 是 dev 进程——既不可杀又会被 UID 枚举算进去）。--init 让
+        # docker-init 回收 dev agent 留下的孤儿/僵尸，减少滞留。
+        # agent 仍经 ``docker exec --user dev`` 以 dev 身份运行；
+        # UID 终止边界不变。
+        "--user", "root",
+        "--init",
         "--workdir", "/workspace",
         "--network", manifest["environment"].get("network_mode", "bridge"),
         "--entrypoint", "sleep",
@@ -105,13 +112,46 @@ def build_setup_plan(manifest: dict, task: dict, skills_dir: Path,
                 "docker_argv": [["docker", "start", container]],
             },
             {
+                "name": "revoke_dev_sudo",
+                "container_shell": [
+                    # CTA 镜像在 /etc/sudoers 给 dev 配 NOPASSWD:ALL——
+                    # agent 进程可免密 sudo 拿 root，彻底破坏 dev-UID
+                    # 终止边界与「无 root」前提。这是容器内的一次性修
+                    # 复（不改镜像）：删除 dev 的 NOPASSWD 授权行，使 dev
+                    # 无法免密提权。若 dev 本无可免密 sudo 的规则则本步
+                    # 为空操作（grep 无匹配 → true）。
+                    "if [ -f /etc/sudoers ]; then "
+                    "cp /etc/sudoers /tmp/sudoers.orig && "
+                    "grep -vE '^\\s*dev\\s+ALL=.*NOPASSWD' /tmp/sudoers.orig "
+                    "> /tmp/sudoers.new && "
+                    "mv /tmp/sudoers.new /etc/sudoers && "
+                    "chmod 440 /etc/sudoers; fi",
+                    # sudoers.d 下也可能有 dev 规则——一并清 dev 专属授权
+                    "rm -f /etc/sudoers.d/dev 2>/dev/null || true",
+                ],
+                "purpose": "CTA image grants dev NOPASSWD:ALL — removes it "
+                           "so the agent's dev UID cannot escalate to root "
+                           "without a password (container-local fix, image "
+                           "unchanged)",
+            },
+            {
                 "name": "precheck_dev_identity",
                 "container_shell": [
-                    # 固定执行身份：dev 必须存在、非 root、无 sudo——
+                    # 固定执行身份：dev 必须存在、非 root——
                     # 终止边界（pkill -U dev 全量 TERM/KILL）依赖它
                     "id -u dev >/dev/null 2>&1 && "
                     "test \"$(id -u dev)\" != \"0\"",
-                    "! sudo -l -U dev >/dev/null 2>&1",
+                    # dev 不得有实际提权能力。只读 sudoers 文本
+                    # (sudo -l -U dev) 不足以判断——CTA 镜像给 dev 配了
+                    # NOPASSWD:ALL（/etc/sudoers 行）。
+                    # 行为核验：root 侧以 dev 实际执行 sudo -n true，
+                    # 能拿到 root 即破坏「agent 无 root」边界 → fail。
+                    # （容器 init 以 --user root 运行；docker exec 身份
+                    # 由 run.py 显式 --user root 指定，不依赖镜像 User。）
+                    "if su -s /bin/sh dev -c "
+                    "'sudo -n true 2>/dev/null'; then "
+                    "echo 'dev can sudo -n (NOPASSWD or cached creds) — "
+                    "privilege boundary broken' >&2; exit 1; fi",
                     # pgrep/pkill 必须存在且支持 -U（busybox 无此 flag →
                     # 协议失效）；对存在的 UID 只应返回 0/1，>=2 fail closed
                     "command -v pgrep >/dev/null && "
@@ -119,8 +159,11 @@ def build_setup_plan(manifest: dict, task: dict, skills_dir: Path,
                     "pgrep -U dev >/dev/null 2>&1; "
                     "rc=$?; test $rc -eq 0 -o $rc -eq 1",
                 ],
-                "purpose": "dev must exist, be non-root, and have no sudo — "
-                           "the UID-scoped kill/verify boundary relies on it; "
+                "purpose": "dev must exist and be non-root — the UID-scoped "
+                           "kill/verify boundary relies on it; dev must not "
+                           "be able to actually escalate to root "
+                           "(sudo -n true as dev must fail — NOPASSWD "
+                           "sudoers entries break the boundary); "
                            "pgrep/pkill with -U support must exist "
                            "(unknown => fail closed)",
             },

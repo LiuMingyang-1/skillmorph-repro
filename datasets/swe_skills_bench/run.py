@@ -160,7 +160,11 @@ def _run_setup_steps(executor: Executor, plan: dict, setup_log: dict,
 
         shells = step.get("container_shell", [])
         for i, shell in enumerate(shells):
-            res = _run(docker_exec_argv(plan["container_name"], shell))
+            # setup container_shell 均以 root 身份执行——容器 init 以
+            # --user root 运行，但 docker exec 身份仍显式指定，
+            # 不依赖镜像 User 配置。
+            res = _run(docker_exec_argv(plan["container_name"], shell,
+                                        user="root"))
             if not _check(res):
                 step_ok = False
             if i == len(shells) - 1 \
@@ -287,7 +291,7 @@ def _stop_agent(executor: Executor, container: str,
     pgrep 核验——不依赖命令行正则、pid 文件或进程树。
     """
     kill_res = executor.run(
-        docker_exec_argv(container, dev_uid_kill_shell()),
+        docker_exec_argv(container, dev_uid_kill_shell(), user="root"),
         timeout=exec_timeout)
     if not kill_res.ok:
         kill_err = kill_res.error or (
@@ -300,7 +304,7 @@ def _stop_agent(executor: Executor, container: str,
     else:
         kill_err = None
         check_res = executor.run(
-            docker_exec_argv(container, dev_uid_check_shell()),
+            docker_exec_argv(container, dev_uid_check_shell(), user="root"),
             timeout=exec_timeout)
         terminated = check_res.ok and check_res.stdout.strip() == "1"
         check_out = check_res.stdout.strip()
@@ -1023,7 +1027,7 @@ def main(argv=None) -> int:
 
     # 终局证据：root 复核 dev UID 无存活进程（与判分前的二次核验独立）
     verify_res = executor.run(
-        docker_exec_argv(container, dev_uid_check_shell()),
+        docker_exec_argv(container, dev_uid_check_shell(), user="root"),
         timeout=args.exec_timeout_sec)
     execution["dev_process_verify"] = {
         "clean": bool(verify_res.ok

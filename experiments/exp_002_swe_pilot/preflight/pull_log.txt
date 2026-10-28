@@ -1,0 +1,56 @@
+Using default tag: latest
+latest: Pulling from zhangyiiiiii/swe-skills-bench-python
+01d7766a2e4a: Pulling fs layer
+0795fbd0e2e3: Pulling fs layer
+244d25016f54: Pulling fs layer
+668040485589: Pulling fs layer
+3ff75778ef3f: Pulling fs layer
+21523db11597: Pulling fs layer
+f2d2606c87c4: Pulling fs layer
+4f4fb700ef54: Pulling fs layer
+8550863499de: Pulling fs layer
+825216998790: Pulling fs layer
+daf706484612: Pulling fs layer
+f2d2606c87c4: Waiting
+4f4fb700ef54: Waiting
+8550863499de: Waiting
+825216998790: Waiting
+daf706484612: Waiting
+668040485589: Waiting
+3ff75778ef3f: Waiting
+21523db11597: Waiting
+01d7766a2e4a: Verifying Checksum
+01d7766a2e4a: Download complete
+01d7766a2e4a: Pull complete
+244d25016f54: Download complete
+668040485589: Verifying Checksum
+668040485589: Download complete
+3ff75778ef3f: Verifying Checksum
+3ff75778ef3f: Download complete
+21523db11597: Verifying Checksum
+21523db11597: Download complete
+f2d2606c87c4: Verifying Checksum
+f2d2606c87c4: Download complete
+0795fbd0e2e3: Verifying Checksum
+0795fbd0e2e3: Download complete
+4f4fb700ef54: Verifying Checksum
+4f4fb700ef54: Download complete
+825216998790: Verifying Checksum
+825216998790: Download complete
+0795fbd0e2e3: Pull complete
+244d25016f54: Pull complete
+668040485589: Pull complete
+3ff75778ef3f: Pull complete
+21523db11597: Pull complete
+f2d2606c87c4: Pull complete
+4f4fb700ef54: Pull complete
+8550863499de: Verifying Checksum
+8550863499de: Download complete
+8550863499de: Pull complete
+825216998790: Pull complete
+daf706484612: Verifying Checksum
+daf706484612: Download complete
+daf706484612: Pull complete
+Digest: sha256:51d40310cdf44d00b3e383af1c4467bc460e6a3a25fedb1f9fab6a8d7b77b974
+Status: Downloaded newer image for zhangyiiiiii/swe-skills-bench-python:latest
+docker.io/zhangyiiiiii/swe-skills-bench-python:latest

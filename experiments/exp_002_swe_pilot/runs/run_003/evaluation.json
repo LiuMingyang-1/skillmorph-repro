@@ -1,0 +1,50 @@
+{
+  "task_id": "tdd-workflow-batch1",
+  "test_file": "tests/batch1/test_tdd_workflow.py",
+  "evaluator": "pytest+junitxml",
+  "staged_at": "/tmp/benchmark_tests",
+  "outcome": "invalid",
+  "outcome_reason": "evaluator_error",
+  "detail": "stage dir failed (chown/writable check included): Password: su: Authentication failure\n",
+  "pytest_exit_code": null,
+  "stdout": "",
+  "stderr": "",
+  "command_log": [
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "--user",
+        "root",
+        "swesk-tdd-workflow-batch1-run_003-ffcad8cf97e4",
+        "sh",
+        "-c",
+        "pgrep_rc=0; pids=$(pgrep -U dev 2>/dev/null) || pgrep_rc=$?; case $pgrep_rc in 0|1) : ;; *) echo \"pgrep -U dev exited $pgrep_rc\" >&2; exit $pgrep_rc ;; esac; leftover=0; for p in $pids; do st=$(awk '{print $3}' /proc/$p/stat 2>/dev/null); [ \"$p\" != \"1\" ] && [ \"$st\" != \"Z\" ] && leftover=1; done; echo $((1 - leftover))"
+      ],
+      "cwd": null,
+      "timeout_sec": 60,
+      "exit_code": 0,
+      "timed_out": false,
+      "duration_sec": 0.12598174999584444,
+      "stdout_tail": "1\n",
+      "stderr_tail": ""
+    },
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "swesk-tdd-workflow-batch1-run_003-ffcad8cf97e4",
+        "sh",
+        "-c",
+        "rm -rf /tmp/benchmark_tests && mkdir -p /tmp/benchmark_tests && chown -R dev:dev /tmp/benchmark_tests && su -s /bin/sh dev -c 'test -w /tmp/benchmark_tests'"
+      ],
+      "cwd": null,
+      "timeout_sec": 60,
+      "exit_code": 1,
+      "timed_out": false,
+      "duration_sec": 1.106871541007422,
+      "stdout_tail": "",
+      "stderr_tail": "Password: su: Authentication failure\n"
+    }
+  ]
+}

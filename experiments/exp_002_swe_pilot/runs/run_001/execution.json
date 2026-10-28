@@ -1,0 +1,8 @@
+{
+  "agent_cmd": "echo \"agent noop for preflight\"",
+  "agent_timeout_sec": 60,
+  "container_name": "swesk-tdd-workflow-batch1-run_001-1b73467bb4a7",
+  "run_id": "1b73467bb4a7",
+  "outcome": "invalid",
+  "outcome_reason": "setup_failure"
+}

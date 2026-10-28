@@ -1,0 +1,5 @@
+Linux cd05d9e42db2 6.17.8-orbstack-00308-g8f9c941121b1 #1 SMP PREEMPT Thu Nov 20 09:34:02 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux
+PRETTY_NAME="Ubuntu 24.04.4 LTS"
+NAME="Ubuntu"
+1 [rosetta] /usr/bin/sleep sleep infinity
+169 [sh] <defunct>
