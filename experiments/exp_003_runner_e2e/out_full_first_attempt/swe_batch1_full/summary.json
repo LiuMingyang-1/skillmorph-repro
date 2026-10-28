@@ -1,0 +1,49 @@
+{
+  "experiment": "swe_batch1_full",
+  "dataset": "swe_skills_bench",
+  "tasks": [
+    "tdd-workflow-batch1"
+  ],
+  "config": "/Users/lmy/Documents/code/skillmorph-repro/experiments/exp_003_runner_e2e/config_swe_full.json",
+  "output_dir": "/Users/lmy/Documents/code/skillmorph-repro/experiments/exp_003_runner_e2e/out_full/swe_batch1_full",
+  "runs_before": {
+    "tdd-workflow-batch1": [
+      "run_001"
+    ]
+  },
+  "runs_after": {
+    "tdd-workflow-batch1": [
+      "run_001"
+    ]
+  },
+  "trajectories_used": 0,
+  "invalid_runs": [
+    {
+      "task_id": "tdd-workflow-batch1",
+      "run": "run_001",
+      "outcome": "invalid",
+      "reason": "trajectory_export_error: agent JSONL not found: synth_trajs/batch1_wrong_partial.jsonl"
+    }
+  ],
+  "comparison": {
+    "tdd-workflow-batch1": {
+      "before": [
+        "invalid"
+      ],
+      "after": [
+        "fail"
+      ],
+      "before_success": 0,
+      "after_success": 0,
+      "before_invalid": 1,
+      "after_invalid": 0
+    }
+  },
+  "method_summary": {
+    "trajectories": 0,
+    "selected": [],
+    "rejected": [],
+    "diff": "",
+    "skills_after": "/Users/lmy/Documents/code/skillmorph-repro/experiments/exp_003_runner_e2e/out_full/swe_batch1_full/method/skills_after"
+  }
+}

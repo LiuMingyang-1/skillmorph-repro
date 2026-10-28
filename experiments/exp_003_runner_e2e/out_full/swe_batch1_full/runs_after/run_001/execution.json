@@ -1,0 +1,44 @@
+{
+  "agent_cmd": "echo IiIiU21hcnRDb3Vwb25DYWxjdWxhdG9yIOKAlCByZWZlcmVuY2UgaW1wbGVtZW50YXRpb24gZm9yIFAxLUEgcHJlZmxpZ2h0LgoKSW1wbGVtZW50cyBwcm9ncmVzc2l2ZSArIGNhdGVnb3J5ICsgdGllciBkaXNjb3VudHMgc3RhY2tlZCBpbiB0aGUgb3JkZXIKdGhlIGFjY2VwdGFuY2UgdGVzdHMgYXNzdW1lOiBjYXRlZ29yeSBmaXJzdCwgdGhlbiBwcm9ncmVzc2l2ZSBvbiB0aGUKZGlzY291bnRlZCBzdWJ0b3RhbCwgdGhlbiB1c2VyLXRpZXIgcGVyY2VudGFnZSBvbiB0aGUgcmVzdWx0LgoiIiIKCgpjbGFzcyBTbWFydENvdXBvbkNhbGN1bGF0b3I6CiAgICAiIiJDYWxjdWxhdGUgZmluYWwgcHJpY2Ugd2l0aCBzdGFja2VkIGRpc2NvdW50IHN0cmF0ZWdpZXMuIiIiCgogICAgVElFUl9ESVNDT1VOVCA9IHsicmVndWxhciI6IDAuMCwgIlZJUCI6IDAuMDUsICJTVklQIjogMC4xMH0KCiAgICBkZWYgY2FsY3VsYXRlKHNlbGYsIGl0ZW1zLCB1c2VyX3RpZXI9InJlZ3VsYXIiLCBwcm9tb19jYXRlZ29yaWVzPU5vbmUpOgogICAgICAgIHByb21vX2NhdGVnb3JpZXMgPSBwcm9tb19jYXRlZ29yaWVzIG9yIFtdCiAgICAgICAgIyAxKSBjYXRlZ29yeSBkaXNjb3VudDogMTAlIG9mZiBwcm9tby1jYXRlZ29yeSBpdGVtcwogICAgICAgIHN1YnRvdGFsID0gMC4wCiAgICAgICAgZm9yIGl0IGluIGl0ZW1zOgogICAgICAgICAgICBwcmljZSA9IGl0LmdldCgicHJpY2UiLCAwKSAqIGl0LmdldCgicXVhbnRpdHkiLCAxKQogICAgICAgICAgICBpZiBpdC5nZXQoImNhdGVnb3J5IikgaW4gcHJvbW9fY2F0ZWdvcmllczoKICAgICAgICAgICAgICAgIHByaWNlICo9IDAuOQogICAgICAgICAgICBzdWJ0b3RhbCArPSBwcmljZQogICAgICAgICMgMikgcHJvZ3Jlc3NpdmUgZGlzY291bnQgb24gdGhlIGRpc2NvdW50ZWQgc3VidG90YWwKICAgICAgICBpZiBzdWJ0b3RhbCA+PSAyMDA6CiAgICAgICAgICAgIHN1YnRvdGFsIC09IDI1CiAgICAgICAgZWxpZiBzdWJ0b3RhbCA+PSAxMDA6CiAgICAgICAgICAgIHN1YnRvdGFsIC09IDEwCiAgICAgICAgaWYgc3VidG90YWwgPCAwOgogICAgICAgICAgICBzdWJ0b3RhbCA9IDAuMAogICAgICAgICMgMykgdXNlci10aWVyIGRpc2NvdW50IG9uIHRoZSByZXN1bHQKICAgICAgICB0aWVyID0gc2VsZi5USUVSX0RJU0NPVU5ULmdldCh1c2VyX3RpZXIpCiAgICAgICAgaWYgdGllciBpcyBOb25lOgogICAgICAgICAgICByYWlzZSBWYWx1ZUVycm9yKGYidW5rbm93biB1c2VyX3RpZXI6IHt1c2VyX3RpZXJ9IikKICAgICAgICByZXR1cm4gc3VidG90YWwgKiAoMSAtIHRpZXIpCg== | base64 -d > src/calculator.py",
+  "agent_timeout_sec": 300,
+  "container_name": "swesk-tdd-workflow-batch1-run_001-4dd335b0b016",
+  "run_id": "4dd335b0b016",
+  "timed_out": false,
+  "duration_sec": 0.040977874989039265,
+  "agent_termination": {
+    "terminated": true,
+    "kill_exit": 0,
+    "kill_error": null,
+    "check_stdout": "1",
+    "check_error": null
+  },
+  "exit_code": 0,
+  "test_visibility_check": {
+    "staging_dir_probe": "clean"
+  },
+  "dev_process_verify": {
+    "clean": true,
+    "stdout": "1",
+    "error": null
+  },
+  "diff": {
+    "ok": true,
+    "git_diff_stdout": "",
+    "git_diff_stdout_exit_code": 0,
+    "git_status_porcelain": "?? src/calculator.py\n",
+    "git_status_porcelain_exit_code": 0,
+    "untracked_list_raw": "src/calculator.py\n",
+    "untracked_list_raw_exit_code": 0,
+    "untracked_files": [
+      "src/calculator.py"
+    ],
+    "untracked_contents": "===== src/calculator.py =====\n\"\"\"SmartCouponCalculator — reference implementation for P1-A preflight.\n\nImplements progressive + category + tier discounts stacked in the order\nthe acceptance tests assume: category first, then progressive on the\ndiscounted subtotal, then user-tier percentage on the result.\n\"\"\"\n\n\nclass SmartCouponCalculator:\n    \"\"\"Calculate final price with stacked discount strategies.\"\"\"\n\n    TIER_DISCOUNT = {\"regular\": 0.0, \"VIP\": 0.05, \"SVIP\": 0.10}\n\n    def calculate(self, items, user_tier=\"regular\", promo_categories=None):\n        promo_categories = promo_categories or []\n        # 1) category discount: 10% off promo-category items\n        subtotal = 0.0\n        for it in items:\n            price = it.get(\"price\", 0) * it.get(\"quantity\", 1)\n            if it.get(\"category\") in promo_categories:\n                price *= 0.9\n            subtotal += price\n        # 2) progressive discount on the discounted subtotal\n        if subtotal >= 200:\n            subtotal -= 25\n        elif subtotal >= 100:\n            subtotal -= 10\n        if subtotal < 0:\n            subtotal = 0.0\n        # 3) user-tier discount on the result\n        tier = self.TIER_DISCOUNT.get(user_tier)\n        if tier is None:\n            raise ValueError(f\"unknown user_tier: {user_tier}\")\n        return subtotal * (1 - tier)\n\n",
+    "untracked_contents_exit_code": 0,
+    "head_after_raw": "a1a2d04ae69bd50aba9dac2783737dfda8f048c9\n",
+    "head_after_raw_exit_code": 0,
+    "head_after": "a1a2d04ae69bd50aba9dac2783737dfda8f048c9"
+  },
+  "exit_file_present": true,
+  "outcome": null,
+  "outcome_reason": null
+}

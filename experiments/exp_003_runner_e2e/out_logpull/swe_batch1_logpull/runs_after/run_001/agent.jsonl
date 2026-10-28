@@ -1,0 +1,4 @@
+{"type": "assistant", "message": {"role": "assistant", "content": [{"type": "tool_use", "id": "u1", "name": "Read", "input": {"file_path": "/home/dev/.claude/skills/tdd-workflow/SKILL.md"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "u1", "content": "skill body"}]}}
+{"type": "assistant", "message": {"role": "assistant", "content": [{"type": "tool_use", "id": "u2", "name": "Write", "input": {"file_path": "/workspace/python/src/calculator.py", "content": "<impl>"}}]}}
+{"type": "user", "message": {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "u2", "content": "wrote src/calculator.py"}]}}

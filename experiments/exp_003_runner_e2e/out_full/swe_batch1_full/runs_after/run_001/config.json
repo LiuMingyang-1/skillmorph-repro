@@ -1,0 +1,193 @@
+{
+  "dataset": "swe_skills_bench",
+  "task_id": "tdd-workflow-batch1",
+  "batch": "batch1",
+  "task_status": "ready",
+  "task_file": "tasks/tdd-workflow-batch1.md",
+  "test_file": "tests/batch1/test_tdd_workflow.py",
+  "repo": {
+    "url": "https://github.com/tdd-starters/python",
+    "commit": "a1a2d04ae69bd50aba9dac2783737dfda8f048c9",
+    "container_path": "/workspace/python",
+    "note": "HF record leaves repo_commit empty for tdd-workflow; commit taken from CTA benchmark_config.yaml."
+  },
+  "environment": {
+    "docker_image": "zhangyiiiiii/swe-skills-bench-python",
+    "docker_image_digest": "sha256:51d40310cdf44d00b3e383af1c4467bc460e6a3a25fedb1f9fab6a8d7b77b974",
+    "docker_image_platform": "linux/amd64"
+  },
+  "evaluation": {
+    "method": "unit_test",
+    "level": "L2",
+    "test_command_template": "python -m pytest <test_file> -v --tb=short",
+    "min_pass_rate": 1.0,
+    "timeout_sec": 300,
+    "success_criterion": "all collected tests in the per-task test file pass (min_pass_rate=1.0); ADAPTED STRICTER than CTA unit_test_runner: skipped, collection errors, per-test errors, and zero tests are NOT success; environment/evaluator failures -> invalid, excluded from success/fail coverage",
+    "test_staging": "CTA eval.py copies the test file (and _dependency_utils.py when present) to /tmp/benchmark_tests/ inside the container and rewrites test_command accordingly; tests reference the repo via REPO_DIR=/workspace/python.",
+    "test_visibility": "acceptance tests are staged only at evaluation time; they are not in the agent workspace",
+    "result_source": "JUnit XML (counts, failed names, duration) cross-checked against pytest exit code; terminal 'passed' string is not parsed",
+    "outcomes": {
+      "success": "all collected tests pass, pytest exit 0, junit consistent",
+      "fail": "test failures, skips, collection/test errors, or task timeout (task_timeout is a fixed protocol fail, distinct from infra timeout)",
+      "invalid": "setup_failure | runner_error | evaluator_error | zero_tests_collected | exit_xml_contradiction — excluded from success/fail coverage"
+    },
+    "adaptation_differences": [
+      "CTA unit_test_runner parses the summary line and may pass a run with skips; this adapter treats skip as not-success (batch10 coverage test would otherwise silently pass).",
+      "Environment/infra/evaluator failures -> invalid (not counted as task failure and not as success).",
+      "Tests run from /tmp/benchmark_tests with -o addopts= and PYTHONPATH cleared to avoid project pytest config pollution.",
+      "JUnit XML is authoritative; pytest exit code cross-checked."
+    ]
+  },
+  "skills": {
+    "host_dir": "/Users/lmy/Documents/code/skillmorph-repro/experiments/exp_003_runner_e2e/out_full/swe_batch1_full/method/skills_after",
+    "container_dir": "/home/dev/.claude/skills",
+    "tree_sha256": "b647188eec087d175a306a0b465b62c9119bcdb4b744a7fd090d5fa79957aa8d"
+  },
+  "run_id": "4dd335b0b016",
+  "dry_run": false,
+  "setup_plan": {
+    "container_name": "swesk-tdd-workflow-batch1-run_001-4dd335b0b016",
+    "image": "zhangyiiiiii/swe-skills-bench-python",
+    "image_ref": "zhangyiiiiii/swe-skills-bench-python@sha256:51d40310cdf44d00b3e383af1c4467bc460e6a3a25fedb1f9fab6a8d7b77b974",
+    "image_platform": "linux/amd64",
+    "steps": [
+      {
+        "name": "remove_stale_container",
+        "docker_argv": [
+          [
+            "docker",
+            "rm",
+            "-f",
+            "swesk-tdd-workflow-batch1-run_001-4dd335b0b016"
+          ]
+        ],
+        "allow_failure": true,
+        "purpose": "per-run container name should not exist; clears leftovers of an aborted run with the same run dir"
+      },
+      {
+        "name": "create_container",
+        "docker_argv": [
+          [
+            "docker",
+            "create",
+            "--name",
+            "swesk-tdd-workflow-batch1-run_001-4dd335b0b016",
+            "--platform",
+            "linux/amd64",
+            "--user",
+            "root",
+            "--init",
+            "--workdir",
+            "/workspace",
+            "--network",
+            "bridge",
+            "--entrypoint",
+            "sleep",
+            "--tty",
+            "zhangyiiiiii/swe-skills-bench-python@sha256:51d40310cdf44d00b3e383af1c4467bc460e6a3a25fedb1f9fab6a8d7b77b974",
+            "infinity"
+          ]
+        ]
+      },
+      {
+        "name": "start_container",
+        "docker_argv": [
+          [
+            "docker",
+            "start",
+            "swesk-tdd-workflow-batch1-run_001-4dd335b0b016"
+          ]
+        ]
+      },
+      {
+        "name": "revoke_dev_sudo",
+        "container_shell": [
+          "if [ -f /etc/sudoers ]; then cp /etc/sudoers /tmp/sudoers.orig && grep -vE '^\\s*dev\\s+ALL=.*NOPASSWD' /tmp/sudoers.orig > /tmp/sudoers.new && mv /tmp/sudoers.new /etc/sudoers && chmod 440 /etc/sudoers; fi",
+          "rm -f /etc/sudoers.d/dev 2>/dev/null || true"
+        ],
+        "purpose": "CTA image grants dev NOPASSWD:ALL — removes it so the agent's dev UID cannot escalate to root without a password (container-local fix, image unchanged)"
+      },
+      {
+        "name": "precheck_dev_identity",
+        "container_shell": [
+          "id -u dev >/dev/null 2>&1 && test \"$(id -u dev)\" != \"0\"",
+          "if su -s /bin/sh dev -c 'sudo -n true 2>/dev/null'; then echo 'dev can sudo -n (NOPASSWD or cached creds) — privilege boundary broken' >&2; exit 1; fi",
+          "command -v pgrep >/dev/null && command -v pkill >/dev/null",
+          "pgrep -U dev >/dev/null 2>&1; rc=$?; test $rc -eq 0 -o $rc -eq 1"
+        ],
+        "purpose": "dev must exist and be non-root — the UID-scoped kill/verify boundary relies on it; dev must not be able to actually escalate to root (sudo -n true as dev must fail — NOPASSWD sudoers entries break the boundary); pgrep/pkill with -U support must exist (unknown => fail closed)"
+      },
+      {
+        "name": "clone_repo",
+        "container_shell": [
+          "if [ -d /workspace/python ] && [ -n \"$(ls -A /workspace/python 2>/dev/null)\" ]; then echo 'refusing to clone into non-empty /workspace/python; recreate the container' >&2; exit 1; fi",
+          "mkdir -p /workspace/python && git init /workspace/python",
+          "cd /workspace/python && git remote add origin https://github.com/tdd-starters/python",
+          "cd /workspace/python && git fetch --depth 1 origin a1a2d04ae69bd50aba9dac2783737dfda8f048c9",
+          "cd /workspace/python && git checkout --detach FETCH_HEAD",
+          "cd /workspace/python && test \"$(git rev-parse HEAD)\" = a1a2d04ae69bd50aba9dac2783737dfda8f048c9"
+        ],
+        "record": {
+          "repo_url": "https://github.com/tdd-starters/python",
+          "commit": "a1a2d04ae69bd50aba9dac2783737dfda8f048c9"
+        }
+      },
+      {
+        "name": "audit_extra_instructions",
+        "container_shell": [
+          "find /workspace/python -type d -name '.claude' -prune -exec rm -rf {} +",
+          "find /workspace/python -type f \\( -name 'CLAUDE.md' -o -name '.claudeignore' \\) -print"
+        ],
+        "purpose": "remove repo-borne .claude dirs; report any remaining instruction files"
+      },
+      {
+        "name": "prepare_skills_dir",
+        "container_shell": [
+          "rm -rf /home/dev/.claude/skills && mkdir -p /home/dev/.claude/skills"
+        ]
+      },
+      {
+        "name": "inject_skill",
+        "docker_argv": [
+          [
+            "docker",
+            "cp",
+            "/Users/lmy/Documents/code/skillmorph-repro/experiments/exp_003_runner_e2e/out_full/swe_batch1_full/method/skills_after/.",
+            "swesk-tdd-workflow-batch1-run_001-4dd335b0b016:/home/dev/.claude/skills/"
+          ]
+        ],
+        "container_shell": [
+          "cd /home/dev/.claude/skills && find . -type f -exec sha256sum {} + | sort -k2"
+        ],
+        "verify": {
+          "kind": "file_listing_sha256"
+        },
+        "record": {
+          "skill_tree_sha256": "b647188eec087d175a306a0b465b62c9119bcdb4b744a7fd090d5fa79957aa8d",
+          "skills_dir_host": "/Users/lmy/Documents/code/skillmorph-repro/experiments/exp_003_runner_e2e/out_full/swe_batch1_full/method/skills_after",
+          "skills_dir_container": "/home/dev/.claude/skills"
+        }
+      },
+      {
+        "name": "fix_ownership",
+        "container_shell": [
+          "chown -R dev:dev /workspace /home/dev/.claude/skills",
+          "su -s /bin/sh dev -c 'test -w /workspace/python && test -w /home/dev/.claude/skills && test -w /tmp'"
+        ],
+        "purpose": "repo + skills + /tmp must be writable by the dev user the agent runs as; fails setup if the dev identity is absent"
+      },
+      {
+        "name": "no_test_exposure_check",
+        "container_shell": [
+          "test ! -e /tmp/benchmark_tests || (echo 'acceptance tests leaked into container' >&2; exit 1)",
+          "! find /workspace/python \\( -name 'benchmark_tests' -o -name 'test_tdd_workflow.py' \\) | grep ."
+        ],
+        "purpose": "assert acceptance tests are absent before agent runs"
+      }
+    ]
+  },
+  "agent": {
+    "agent_cmd": "echo IiIiU21hcnRDb3Vwb25DYWxjdWxhdG9yIOKAlCByZWZlcmVuY2UgaW1wbGVtZW50YXRpb24gZm9yIFAxLUEgcHJlZmxpZ2h0LgoKSW1wbGVtZW50cyBwcm9ncmVzc2l2ZSArIGNhdGVnb3J5ICsgdGllciBkaXNjb3VudHMgc3RhY2tlZCBpbiB0aGUgb3JkZXIKdGhlIGFjY2VwdGFuY2UgdGVzdHMgYXNzdW1lOiBjYXRlZ29yeSBmaXJzdCwgdGhlbiBwcm9ncmVzc2l2ZSBvbiB0aGUKZGlzY291bnRlZCBzdWJ0b3RhbCwgdGhlbiB1c2VyLXRpZXIgcGVyY2VudGFnZSBvbiB0aGUgcmVzdWx0LgoiIiIKCgpjbGFzcyBTbWFydENvdXBvbkNhbGN1bGF0b3I6CiAgICAiIiJDYWxjdWxhdGUgZmluYWwgcHJpY2Ugd2l0aCBzdGFja2VkIGRpc2NvdW50IHN0cmF0ZWdpZXMuIiIiCgogICAgVElFUl9ESVNDT1VOVCA9IHsicmVndWxhciI6IDAuMCwgIlZJUCI6IDAuMDUsICJTVklQIjogMC4xMH0KCiAgICBkZWYgY2FsY3VsYXRlKHNlbGYsIGl0ZW1zLCB1c2VyX3RpZXI9InJlZ3VsYXIiLCBwcm9tb19jYXRlZ29yaWVzPU5vbmUpOgogICAgICAgIHByb21vX2NhdGVnb3JpZXMgPSBwcm9tb19jYXRlZ29yaWVzIG9yIFtdCiAgICAgICAgIyAxKSBjYXRlZ29yeSBkaXNjb3VudDogMTAlIG9mZiBwcm9tby1jYXRlZ29yeSBpdGVtcwogICAgICAgIHN1YnRvdGFsID0gMC4wCiAgICAgICAgZm9yIGl0IGluIGl0ZW1zOgogICAgICAgICAgICBwcmljZSA9IGl0LmdldCgicHJpY2UiLCAwKSAqIGl0LmdldCgicXVhbnRpdHkiLCAxKQogICAgICAgICAgICBpZiBpdC5nZXQoImNhdGVnb3J5IikgaW4gcHJvbW9fY2F0ZWdvcmllczoKICAgICAgICAgICAgICAgIHByaWNlICo9IDAuOQogICAgICAgICAgICBzdWJ0b3RhbCArPSBwcmljZQogICAgICAgICMgMikgcHJvZ3Jlc3NpdmUgZGlzY291bnQgb24gdGhlIGRpc2NvdW50ZWQgc3VidG90YWwKICAgICAgICBpZiBzdWJ0b3RhbCA+PSAyMDA6CiAgICAgICAgICAgIHN1YnRvdGFsIC09IDI1CiAgICAgICAgZWxpZiBzdWJ0b3RhbCA+PSAxMDA6CiAgICAgICAgICAgIHN1YnRvdGFsIC09IDEwCiAgICAgICAgaWYgc3VidG90YWwgPCAwOgogICAgICAgICAgICBzdWJ0b3RhbCA9IDAuMAogICAgICAgICMgMykgdXNlci10aWVyIGRpc2NvdW50IG9uIHRoZSByZXN1bHQKICAgICAgICB0aWVyID0gc2VsZi5USUVSX0RJU0NPVU5ULmdldCh1c2VyX3RpZXIpCiAgICAgICAgaWYgdGllciBpcyBOb25lOgogICAgICAgICAgICByYWlzZSBWYWx1ZUVycm9yKGYidW5rbm93biB1c2VyX3RpZXI6IHt1c2VyX3RpZXJ9IikKICAgICAgICByZXR1cm4gc3VidG90YWwgKiAoMSAtIHRpZXIpCg== | base64 -d > src/calculator.py",
+    "agent_timeout_sec": 300
+  }
+}

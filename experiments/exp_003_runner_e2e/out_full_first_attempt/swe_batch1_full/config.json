@@ -1,0 +1,25 @@
+{
+  "name": "swe_batch1_full",
+  "dataset": {
+    "name": "swe_skills_bench",
+    "tasks": [
+      "tdd-workflow-batch1"
+    ],
+    "runs_per_task": 1
+  },
+  "method": {
+    "name": "copy"
+  },
+  "skill": {
+    "dir": "../../datasets/swe_skills_bench/skills"
+  },
+  "executor": {
+    "agent_cmd": "echo aGNsYXNzIFNtYXJ0Q291cG9uQ2FsY3VsYXRvcjoKICAgICIiIkNhbGN1bGF0ZSBmaW5hbCBwcmljZSAocGFydGlhbCBpbXBsZW1lbnRhdGlvbikuIiIiCiAgICBkZWYgY2FsY3VsYXRlKHNlbGYsIGl0ZW1zLCB1c2VyX3RpZXI9InJlZ3VsYXIiLCBwcm9tb19jYXRlZ29yaWVzPU5vbmUpOgogICAgICAgIHN1YnRvdGFsID0gMC4wCiAgICAgICAgZm9yIGl0IGluIGl0ZW1zOgogICAgICAgICAgICBzdWJ0b3RhbCArPSBpdC5nZXQoInByaWNlIiwgMCkgKiBpdC5nZXQoInF1YW50aXR5IiwgMSkKICAgICAgICBpZiBzdWJ0b3RhbCA+PSAyMDA6CiAgICAgICAgICAgIHN1YnRvdGFsIC09IDI1CiAgICAgICAgZWxpZiBzdWJ0b3RhbCA+PSAxMDA6CiAgICAgICAgICAgIHN1YnRvdGFsIC09IDEwCiAgICAgICAgcmV0dXJuIHN1YnRvdGFsCg== | base64 -d > src/calculator.py",
+    "agent_timeout_sec": 300,
+    "eval_timeout_sec": 300,
+    "trajectory_jsonl": "synth_trajs/batch1_wrong_partial.jsonl"
+  },
+  "output": {
+    "dir": "out_full"
+  }
+}

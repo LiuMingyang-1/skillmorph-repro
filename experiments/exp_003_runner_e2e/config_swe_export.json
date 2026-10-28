@@ -1,0 +1,28 @@
+{
+  "name": "swe_batch1_export",
+  "dataset": {
+    "name": "swe_skills_bench",
+    "tasks": [
+      "tdd-workflow-batch1"
+    ],
+    "runs_per_task": 2
+  },
+  "method": {
+    "name": "copy"
+  },
+  "skip_after": true,
+  "skill": {
+    "dir": "../../datasets/swe_skills_bench/skills"
+  },
+  "executor": {
+    "agent_cmd": "echo IiIiU21hcnRDb3Vwb25DYWxjdWxhdG9yIOKAlCByZWZlcmVuY2UgaW1wbGVtZW50YXRpb24gZm9yIFAxLUEgcHJlZmxpZ2h0LgoKSW1wbGVtZW50cyBwcm9ncmVzc2l2ZSArIGNhdGVnb3J5ICsgdGllciBkaXNjb3VudHMgc3RhY2tlZCBpbiB0aGUgb3JkZXIKdGhlIGFjY2VwdGFuY2UgdGVzdHMgYXNzdW1lOiBjYXRlZ29yeSBmaXJzdCwgdGhlbiBwcm9ncmVzc2l2ZSBvbiB0aGUKZGlzY291bnRlZCBzdWJ0b3RhbCwgdGhlbiB1c2VyLXRpZXIgcGVyY2VudGFnZSBvbiB0aGUgcmVzdWx0LgoiIiIKCgpjbGFzcyBTbWFydENvdXBvbkNhbGN1bGF0b3I6CiAgICAiIiJDYWxjdWxhdGUgZmluYWwgcHJpY2Ugd2l0aCBzdGFja2VkIGRpc2NvdW50IHN0cmF0ZWdpZXMuIiIiCgogICAgVElFUl9ESVNDT1VOVCA9IHsicmVndWxhciI6IDAuMCwgIlZJUCI6IDAuMDUsICJTVklQIjogMC4xMH0KCiAgICBkZWYgY2FsY3VsYXRlKHNlbGYsIGl0ZW1zLCB1c2VyX3RpZXI9InJlZ3VsYXIiLCBwcm9tb19jYXRlZ29yaWVzPU5vbmUpOgogICAgICAgIHByb21vX2NhdGVnb3JpZXMgPSBwcm9tb19jYXRlZ29yaWVzIG9yIFtdCiAgICAgICAgIyAxKSBjYXRlZ29yeSBkaXNjb3VudDogMTAlIG9mZiBwcm9tby1jYXRlZ29yeSBpdGVtcwogICAgICAgIHN1YnRvdGFsID0gMC4wCiAgICAgICAgZm9yIGl0IGluIGl0ZW1zOgogICAgICAgICAgICBwcmljZSA9IGl0LmdldCgicHJpY2UiLCAwKSAqIGl0LmdldCgicXVhbnRpdHkiLCAxKQogICAgICAgICAgICBpZiBpdC5nZXQoImNhdGVnb3J5IikgaW4gcHJvbW9fY2F0ZWdvcmllczoKICAgICAgICAgICAgICAgIHByaWNlICo9IDAuOQogICAgICAgICAgICBzdWJ0b3RhbCArPSBwcmljZQogICAgICAgICMgMikgcHJvZ3Jlc3NpdmUgZGlzY291bnQgb24gdGhlIGRpc2NvdW50ZWQgc3VidG90YWwKICAgICAgICBpZiBzdWJ0b3RhbCA+PSAyMDA6CiAgICAgICAgICAgIHN1YnRvdGFsIC09IDI1CiAgICAgICAgZWxpZiBzdWJ0b3RhbCA+PSAxMDA6CiAgICAgICAgICAgIHN1YnRvdGFsIC09IDEwCiAgICAgICAgaWYgc3VidG90YWwgPCAwOgogICAgICAgICAgICBzdWJ0b3RhbCA9IDAuMAogICAgICAgICMgMykgdXNlci10aWVyIGRpc2NvdW50IG9uIHRoZSByZXN1bHQKICAgICAgICB0aWVyID0gc2VsZi5USUVSX0RJU0NPVU5ULmdldCh1c2VyX3RpZXIpCiAgICAgICAgaWYgdGllciBpcyBOb25lOgogICAgICAgICAgICByYWlzZSBWYWx1ZUVycm9yKGYidW5rbm93biB1c2VyX3RpZXI6IHt1c2VyX3RpZXJ9IikKICAgICAgICByZXR1cm4gc3VidG90YWwgKiAoMSAtIHRpZXIpCg== | base64 -d > src/calculator.py",
+    "agent_timeout_sec": 300,
+    "eval_timeout_sec": 300,
+    "trajectory_jsonl": {
+      "tdd-workflow-batch1": "synth_trajs/batch1_correct.jsonl"
+    }
+  },
+  "output": {
+    "dir": "out_export"
+  }
+}

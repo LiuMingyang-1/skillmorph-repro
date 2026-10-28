@@ -1,0 +1,8 @@
+{
+  "status": "evaluated",
+  "task_id": "tdd-workflow-batch1",
+  "run_dir": "/Users/lmy/Documents/code/skillmorph-repro/experiments/exp_003_runner_e2e/out_full/swe_batch1_full/runs_after/run_001",
+  "setup": {
+    "ok": true
+  }
+}

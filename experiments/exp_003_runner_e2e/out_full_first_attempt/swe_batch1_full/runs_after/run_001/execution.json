@@ -1,0 +1,44 @@
+{
+  "agent_cmd": "echo aGNsYXNzIFNtYXJ0Q291cG9uQ2FsY3VsYXRvcjoKICAgICIiIkNhbGN1bGF0ZSBmaW5hbCBwcmljZSAocGFydGlhbCBpbXBsZW1lbnRhdGlvbikuIiIiCiAgICBkZWYgY2FsY3VsYXRlKHNlbGYsIGl0ZW1zLCB1c2VyX3RpZXI9InJlZ3VsYXIiLCBwcm9tb19jYXRlZ29yaWVzPU5vbmUpOgogICAgICAgIHN1YnRvdGFsID0gMC4wCiAgICAgICAgZm9yIGl0IGluIGl0ZW1zOgogICAgICAgICAgICBzdWJ0b3RhbCArPSBpdC5nZXQoInByaWNlIiwgMCkgKiBpdC5nZXQoInF1YW50aXR5IiwgMSkKICAgICAgICBpZiBzdWJ0b3RhbCA+PSAyMDA6CiAgICAgICAgICAgIHN1YnRvdGFsIC09IDI1CiAgICAgICAgZWxpZiBzdWJ0b3RhbCA+PSAxMDA6CiAgICAgICAgICAgIHN1YnRvdGFsIC09IDEwCiAgICAgICAgcmV0dXJuIHN1YnRvdGFsCg== | base64 -d > src/calculator.py",
+  "agent_timeout_sec": 300,
+  "container_name": "swesk-tdd-workflow-batch1-run_001-adac0eff7afc",
+  "run_id": "adac0eff7afc",
+  "timed_out": false,
+  "duration_sec": 0.04065370799798984,
+  "agent_termination": {
+    "terminated": true,
+    "kill_exit": 0,
+    "kill_error": null,
+    "check_stdout": "1",
+    "check_error": null
+  },
+  "exit_code": 0,
+  "test_visibility_check": {
+    "staging_dir_probe": "clean"
+  },
+  "dev_process_verify": {
+    "clean": true,
+    "stdout": "1",
+    "error": null
+  },
+  "diff": {
+    "ok": true,
+    "git_diff_stdout": "",
+    "git_diff_stdout_exit_code": 0,
+    "git_status_porcelain": "?? src/calculator.py\n",
+    "git_status_porcelain_exit_code": 0,
+    "untracked_list_raw": "src/calculator.py\n",
+    "untracked_list_raw_exit_code": 0,
+    "untracked_files": [
+      "src/calculator.py"
+    ],
+    "untracked_contents": "===== src/calculator.py =====\nhclass SmartCouponCalculator:\n    \"\"\"Calculate final price (partial implementation).\"\"\"\n    def calculate(self, items, user_tier=\"regular\", promo_categories=None):\n        subtotal = 0.0\n        for it in items:\n            subtotal += it.get(\"price\", 0) * it.get(\"quantity\", 1)\n        if subtotal >= 200:\n            subtotal -= 25\n        elif subtotal >= 100:\n            subtotal -= 10\n        return subtotal\n\n",
+    "untracked_contents_exit_code": 0,
+    "head_after_raw": "a1a2d04ae69bd50aba9dac2783737dfda8f048c9\n",
+    "head_after_raw_exit_code": 0,
+    "head_after": "a1a2d04ae69bd50aba9dac2783737dfda8f048c9"
+  },
+  "exit_file_present": true,
+  "outcome": null,
+  "outcome_reason": null
+}

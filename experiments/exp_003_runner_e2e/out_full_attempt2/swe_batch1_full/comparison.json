@@ -1,0 +1,14 @@
+{
+  "tdd-workflow-batch1": {
+    "before": [
+      "invalid"
+    ],
+    "after": [
+      "success"
+    ],
+    "before_success": 0,
+    "after_success": 1,
+    "before_invalid": 1,
+    "after_invalid": 0
+  }
+}

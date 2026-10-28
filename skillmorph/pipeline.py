@@ -127,19 +127,29 @@ def _revision(ranked, skill_dir, runs, run_dir, *, prompt_dir, client):
     return result
 
 
-def run_experiment(experiment_dir, *, client=None) -> dict:
+def run_experiment(experiment_dir, *, client=None,
+                   trajectories=None, skill_dir=None,
+                   prompt_dir=None) -> dict:
     """对 ``experiment_dir`` 执行一次完整的独立运行。
 
     ``client`` 是提供 ``chat.completions.create`` 和 ``embeddings.create``
     接口的 OpenAI 兼容客户端（或 fake）；若为 ``None``，则分别使用
     根目录 .env 配置的聊天和嵌入客户端。返回摘要字典，该摘要也会写入
     ``runs/run_NNN/analysis/summary.json``。
+
+    输入入口：``trajectories`` 显式给出原始 run 列表时直接使用（调用方
+    负责提供符合 docs/INTERFACES.md 的 dict），否则读取
+    ``<experiment_dir>/data/trajectories.json``；``skill_dir`` /
+    ``prompt_dir`` 显式给出时优先于实验目录的 ``skills/`` / ``prompts/``。
     """
     exp = Path(experiment_dir)
-    prompt_dir = exp / "prompts"
-    skill_dir = exp / "skills"
-    _stage(f"loading trajectories from {exp / 'data' / DATA_FILE}")
-    raw_runs = _load_runs(exp / "data")
+    prompt_dir = Path(prompt_dir) if prompt_dir else exp / "prompts"
+    skill_dir = Path(skill_dir) if skill_dir else exp / "skills"
+    if trajectories is None:
+        _stage(f"loading trajectories from {exp / 'data' / DATA_FILE}")
+        raw_runs = _load_runs(exp / "data")
+    else:
+        raw_runs = [dict(r) for r in trajectories]
     if not raw_runs:
         raise ValueError(f"no trajectories found under {exp / 'data'}")
 
@@ -150,6 +160,10 @@ def run_experiment(experiment_dir, *, client=None) -> dict:
     llm.set_raw_dir(run_dir / "raw")
     try:
         for run in raw_runs:
+            for key in ("task_id", "run_id", "outcome", "steps"):
+                if key not in run:
+                    raise ValueError(
+                        f"run {run.get('task_id', '?')!r} missing {key!r}")
             _write_json(
                 run_dir / "trajectories" / f"{run['task_id']}__{run['run_id']}.json",
                 run,

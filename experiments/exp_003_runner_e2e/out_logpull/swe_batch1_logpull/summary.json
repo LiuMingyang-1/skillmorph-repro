@@ -1,0 +1,42 @@
+{
+  "experiment": "swe_batch1_logpull",
+  "dataset": "swe_skills_bench",
+  "tasks": [
+    "tdd-workflow-batch1"
+  ],
+  "config": "/Users/lmy/Documents/code/skillmorph-repro/experiments/exp_003_runner_e2e/config_swe_logpull.json",
+  "output_dir": "/Users/lmy/Documents/code/skillmorph-repro/experiments/exp_003_runner_e2e/out_logpull/swe_batch1_logpull",
+  "runs_before": {
+    "tdd-workflow-batch1": [
+      "run_001"
+    ]
+  },
+  "runs_after": {
+    "tdd-workflow-batch1": [
+      "run_001"
+    ]
+  },
+  "trajectories_used": 1,
+  "invalid_runs": [],
+  "comparison": {
+    "tdd-workflow-batch1": {
+      "before": [
+        "success"
+      ],
+      "after": [
+        "success"
+      ],
+      "before_success": 1,
+      "after_success": 1,
+      "before_invalid": 0,
+      "after_invalid": 0
+    }
+  },
+  "method_summary": {
+    "trajectories": 1,
+    "selected": [],
+    "rejected": [],
+    "diff": "",
+    "skills_after": "/Users/lmy/Documents/code/skillmorph-repro/experiments/exp_003_runner_e2e/out_logpull/swe_batch1_logpull/method/skills_after"
+  }
+}

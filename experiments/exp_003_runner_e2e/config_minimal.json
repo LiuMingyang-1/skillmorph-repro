@@ -1,0 +1,16 @@
+{
+  "name": "minimal_swe",
+  "dataset": {
+    "name": "swe_skills_bench",
+    "tasks": ["tdd-workflow-batch1"],
+    "runs_per_task": 1
+  },
+  "method": {"name": "copy"},
+  "skill": {"dir": "../../datasets/swe_skills_bench/skills"},
+  "executor": {
+    "agent_cmd": "echo '<your-impl>' > src/calculator.py",
+    "agent_timeout_sec": 300,
+    "trajectory_jsonl": "synth_trajs/batch1_correct.jsonl"
+  },
+  "output": {"dir": "out_minimal"}
+}
