@@ -1,0 +1,247 @@
+{
+  "dataset": "swe_skills_bench",
+  "extracted_at": "2026-10-27",
+  "pilot_skill": "tdd-workflow",
+  "sources": {
+    "cta": {
+      "repo": "https://github.com/explicitcontextualunderstanding/cta",
+      "commit": "8822baed308a74b5921e2a5be50394c1a4a8fc96",
+      "license": "MIT — Copyright (c) 2026 Anonymous (see LICENSE)",
+      "note": "Third-party reproduction harness, not the official SWE-Skills-Bench release. Batch1 task/test/skill contents verified identical to HF dataset records for all 49 skills."
+    },
+    "hf": {
+      "dataset": "https://huggingface.co/datasets/GeniusHTX/SWE-Skills-Bench",
+      "revision": "a111a9d9e53722c7aafd951830b459b08439f2da",
+      "files": {
+        "swe_skills_bench.jsonl": "sha256:616373200363f5faf1cda6699f8952ee47f6b3a506bfdd8026f3655bf5dc6fe6",
+        "README.md": "sha256:8d6ccb9438f073c0aa6e70adeacb68c887c86d133814e5a77dc0f45f208cef1e"
+      },
+      "note": "49 records. task_prompt/test_code/skill_document for all 49 skills match CTA batch1 files verbatim after trailing-whitespace normalization."
+    }
+  },
+  "repo": {
+    "url": "https://github.com/tdd-starters/python",
+    "commit": "a1a2d04ae69bd50aba9dac2783737dfda8f048c9",
+    "container_path": "/workspace/python",
+    "note": "HF record leaves repo_commit empty for tdd-workflow; commit taken from CTA benchmark_config.yaml."
+  },
+  "environment": {
+    "docker_image": "zhangyiiiiii/swe-skills-bench-python",
+    "docker_image_digest": null,
+    "docker_image_platform": null,
+    "digest_note": "Digest not recorded in CTA config or HF dataset; cannot be resolved without Docker Hub access. Must be pinned at first pull and recorded here before any benchmark run. Do not fabricate.",
+    "setup_commands": [],
+    "pre_process": null,
+    "env_vars": {},
+    "limits": {
+      "max_iterations": 1,
+      "total_timeout_sec": 1800
+    },
+    "network_mode": "bridge"
+  },
+  "evaluation": {
+    "method": "unit_test",
+    "level": "L2",
+    "test_command_template": "python -m pytest <test_file> -v --tb=short",
+    "min_pass_rate": 1.0,
+    "timeout_sec": 300,
+    "success_criterion": "all collected tests in the per-task test file pass (min_pass_rate=1.0); ADAPTED STRICTER than CTA unit_test_runner: skipped, collection errors, per-test errors, and zero tests are NOT success; environment/evaluator failures -> invalid, excluded from success/fail coverage",
+    "test_staging": "CTA eval.py copies the test file (and _dependency_utils.py when present) to /tmp/benchmark_tests/ inside the container and rewrites test_command accordingly; tests reference the repo via REPO_DIR=/workspace/python.",
+    "test_visibility": "acceptance tests are staged only at evaluation time; they are not in the agent workspace",
+    "result_source": "JUnit XML (counts, failed names, duration) cross-checked against pytest exit code; terminal 'passed' string is not parsed",
+    "outcomes": {
+      "success": "all collected tests pass, pytest exit 0, junit consistent",
+      "fail": "test failures, skips, collection/test errors, or task timeout (task_timeout is a fixed protocol fail, distinct from infra timeout)",
+      "invalid": "setup_failure | runner_error | evaluator_error | zero_tests_collected | exit_xml_contradiction — excluded from success/fail coverage"
+    },
+    "adaptation_differences": [
+      "CTA unit_test_runner parses the summary line and may pass a run with skips; this adapter treats skip as not-success (batch10 coverage test would otherwise silently pass).",
+      "Environment/infra/evaluator failures -> invalid (not counted as task failure and not as success).",
+      "Tests run from /tmp/benchmark_tests with -o addopts= and PYTHONPATH cleared to avoid project pytest config pollution.",
+      "JUnit XML is authoritative; pytest exit code cross-checked."
+    ]
+  },
+  "tasks": [
+    {
+      "task_id": "tdd-workflow-batch1",
+      "batch": "batch1",
+      "task_file": "tasks/tdd-workflow-batch1.md",
+      "test_file": "tests/batch1/test_tdd_workflow.py",
+      "objective": "Implement SmartCouponCalculator in src/calculator.py (progressive + category + tier discounts)",
+      "import_path": "src.calculator (repo root on sys.path)",
+      "test_count": 14,
+      "notes": "Agent must create src/calculator.py at repo root — NOT inside src/python_starter/. Test inserts REPO_DIR on sys.path and imports src.calculator. Mirrors HF task_prompt/test_code exactly.",
+      "family": "coupon_calculator",
+      "status": "ready"
+    },
+    {
+      "task_id": "tdd-workflow-batch3",
+      "batch": "batch3",
+      "task_file": "tasks/tdd-workflow-batch3.md",
+      "test_file": "tests/batch3/test_tdd_workflow.py",
+      "objective": "Implement StringCalculator.add(numbers) in src/string_calculator.py + agent-written tests/test_string_calculator.py",
+      "import_path": "string_calculator (REPO_DIR/src on sys.path)",
+      "test_count": 20,
+      "notes": "Test asserts agent-created test file has >=5 test functions and covers ValueError. Functional checks cover delimiters, >1000 rule, negatives.",
+      "family": "string_calculator",
+      "status": "ready"
+    },
+    {
+      "task_id": "tdd-workflow-batch4",
+      "batch": "batch4",
+      "task_file": "tasks/tdd-workflow-batch4.md",
+      "test_file": "tests/batch4/test_tdd_workflow.py",
+      "objective": "Implement StringCalculator in src/string_calculator.py + tests (>=8 test functions, key scenarios)",
+      "import_path": "string_calculator (REPO_DIR/src on sys.path)",
+      "test_count": 21,
+      "notes": "Task text mentions 80% coverage but test enforces AST-level scenario coverage + functional correctness instead.",
+      "family": "string_calculator",
+      "status": "ready"
+    },
+    {
+      "task_id": "tdd-workflow-batch5",
+      "batch": "batch5",
+      "task_file": "tasks/tdd-workflow-batch5.md",
+      "test_file": "tests/batch5/test_tdd_workflow.py",
+      "objective": "Implement StringCalculator.add in src/string_calculator.py + agent test file (>=10 tests)",
+      "import_path": "string_calculator (REPO_DIR/src on sys.path)",
+      "test_count": 18,
+      "notes": "Functional assertions for empty/single/multi/newline/custom-delimiter/negatives/>1000.",
+      "family": "string_calculator",
+      "status": "ready"
+    },
+    {
+      "task_id": "tdd-workflow-batch7",
+      "batch": "batch7",
+      "task_file": "tasks/tdd-workflow-batch7.md",
+      "test_file": "tests/batch7/test_tdd_workflow.py",
+      "objective": "Implement add() in src/python_starter/calculator.py + extend tests/test_calculator.py",
+      "import_path": "python_starter.calculator (REPO_DIR/src on sys.path)",
+      "test_count": 18,
+      "notes": "Uses existing package path — matches scaffold layout. Final check runs pytest on tests/ and requires >=5 passed.",
+      "family": "string_calculator",
+      "status": "ready"
+    },
+    {
+      "task_id": "tdd-workflow-batch8",
+      "batch": "batch8",
+      "task_file": "tasks/tdd-workflow-batch8.md",
+      "test_file": "tests/batch8/test_tdd_workflow.py",
+      "objective": "Implement StringCalculator in src/python_starter/calculator.py + agent test file (>=15 tests)",
+      "import_path": "python_starter.calculator (REPO_DIR/src on sys.path)",
+      "test_count": 18,
+      "notes": "Same package path as batch7.",
+      "family": "string_calculator",
+      "status": "ready"
+    },
+    {
+      "task_id": "tdd-workflow-batch9",
+      "batch": "batch9",
+      "task_file": "tasks/tdd-workflow-batch9.md",
+      "test_file": "tests/batch9/test_tdd_workflow.py",
+      "objective": "Extend evaluate() in src/python_starter/calculator.py: parentheses, modulo, unary negation + extend tests",
+      "import_path": "python_starter.calculator (subprocess 'python -c' with src on sys.path)",
+      "test_count": 13,
+      "notes": "Some source-scan checks are weak keyword heuristics, but functional checks run real evaluate() calls in subprocesses plus a full pytest run on tests/. START-POINT CHECK (2026-10-27, pinned commit a1a2d04): calculator.py exists but evaluate() is a stub returning 0 (not a working arithmetic evaluator); tests/test_calculator.py exists (1 active test). 'extend existing evaluate()' assumption only partially holds — marked unsuitable_starting_point, not counted as a clean usable task.",
+      "family": "evaluate_expr",
+      "status": "unsuitable_starting_point"
+    },
+    {
+      "task_id": "tdd-workflow-batch10",
+      "batch": "batch10",
+      "task_file": "tasks/tdd-workflow-batch10.md",
+      "test_file": "tests/batch10/test_tdd_workflow.py",
+      "objective": "Implement PasswordValidator in src/python_starter/password_validator.py + test file, >=80% coverage",
+      "import_path": "src.python_starter.password_validator (REPO_DIR on sys.path)",
+      "test_count": 20,
+      "notes": "One test pip-installs pytest-cov at runtime — needs network or pre-installed pytest-cov in image; skips if install fails, so image should pre-install to keep the check effective. STATUS pending: test_coverage_meets_threshold pip-installs pytest-cov at runtime — needs network or pre-installed pytest-cov; under strict protocol a skip counts as FAIL (not pass). Do not run as a normal task until pytest-cov availability is confirmed offline/pre-installed.",
+      "family": "password_validator",
+      "status": "pending_pytest_cov"
+    }
+  ],
+  "excluded_batches": {
+    "batch2": "Test quality weak: semantic checks are generic keyword/AST heuristics (class name contains 'calc', source mentions 'category'/'price'); functional checks skip on any signature mismatch (11 pytest.skip paths). Not packaged.",
+    "batch6": "Task assumes a TypeScript/Express/PostgreSQL project, but the pinned repo is a Python scaffold — task/repo mismatch; tests assert .ts/.sql files that would require a different project. Excluded."
+  },
+  "skill_package": {
+    "path": "skills/tdd-workflow/SKILL.md",
+    "sha256": "67b7874a9a541a4942ccabdc3a3ddab449896ef37bff7b89769f34b1a18cac41",
+    "language": "zh-TW (traditional Chinese), 409 lines",
+    "license_note": "No separate license file inside the skill directory; distributed under CTA MIT license."
+  },
+  "file_hashes": {
+    "LICENSE": "3d9685342ea6ef1a6e2f4a58cabba83b856c75623ed8862470aff97037aceb48",
+    "skills/tdd-workflow/SKILL.md": "67b7874a9a541a4942ccabdc3a3ddab449896ef37bff7b89769f34b1a18cac41",
+    "tasks/tdd-workflow-batch1.md": "5744f6850aa4b6e1f3fa204b5b3b5608a934160fe6c53979b5b0e3c2859545b8",
+    "tasks/tdd-workflow-batch3.md": "1b5b048114e7a175d639ea72578e50fc7ed6f3505e74c25b8b21f29d864f38db",
+    "tasks/tdd-workflow-batch4.md": "de608de30240a932923bd9141e29095f4e5271e642dc8e83bfd7f3e607ed73db",
+    "tasks/tdd-workflow-batch5.md": "6e823049d5ef3ae16120c0a61ceacb3ad6bc38fb29f0a25bda0e505ade01031a",
+    "tasks/tdd-workflow-batch7.md": "a4d5cde74b65efb31e07efa2ed960fefa989254c0c7c7caffdebc6aaf519b8a5",
+    "tasks/tdd-workflow-batch8.md": "64f924bf9462e2aaed97e1630eeacaed39665fa3888687b83b2dd8d6e2325687",
+    "tasks/tdd-workflow-batch9.md": "30b4e0e523817cb6be14ab4d7878152a659c3f6d252977a99d8289d3b80388e0",
+    "tasks/tdd-workflow-batch10.md": "5a3f35ba263397cf83de09bb38475b5af1b2310839563b84ec0f812eda77780d",
+    "tests/batch1/test_tdd_workflow.py": "c5fc09cedf1d3cc6f1a4077cc6ea4ac30bac3db9a6ac18495991b6c0228adbf7",
+    "tests/batch3/test_tdd_workflow.py": "4377291ac399004ec5f030ac09a154b1c0c65fab55eab943d8f9b7368db2b2b3",
+    "tests/batch4/test_tdd_workflow.py": "89c7b8525272005fdcbf8b9b912af93bfe453efda39bba95e917b92a630504e3",
+    "tests/batch5/test_tdd_workflow.py": "d0ca49b261466cb24e03f1b84853feca9b5b94873b53e56b6e5386ea34f3b04c",
+    "tests/batch7/test_tdd_workflow.py": "f7d2956e26ffe33bce91ef4ce15118ceff81b88402cf3a1a409d85b12eba1a3b",
+    "tests/batch8/test_tdd_workflow.py": "d2c4afddb9f18a550d467be75cb15afb1ce30c30909e509b18e26a2346d0af0a",
+    "tests/batch9/test_tdd_workflow.py": "039df2770fdad5850a6d1fd598cc28e377897b114c306728d181ee36e22194e5",
+    "tests/batch10/test_tdd_workflow.py": "d7ee5d79294791ff920146d88b2b216b4bea6f77eade30d59b1322a92b3043d3"
+  },
+  "pending_verification": [
+    "Docker image digest + platform (must pin on first pull; do not fabricate)",
+    "Whether zhangyiiiiii/swe-skills-bench-python image contains python+pytest+git",
+    "batch10 needs pytest-cov available offline/pre-installed; otherwise its coverage test skips -> strict fail, and the task stays 'pending'",
+    "Upstream repo reachable at pinned commit from inside container (network_mode=bridge)",
+    "Baseline check: unmodified scaffold must fail acceptance tests (verifies tests discriminate)",
+    "Known-good implementation must pass acceptance tests (P1) — pass/fail discriminative power NOT yet verified",
+    "batch9 starting-point mismatch: extend existing evaluate() vs stub — decide exclude or repair before use"
+  ],
+  "file_provenance": {
+    "LICENSE": "cta@8822baed308a74b5921e2a5be50394c1a4a8fc96:LICENSE",
+    "skills/tdd-workflow/SKILL.md": "cta@8822baed308a74b5921e2a5be50394c1a4a8fc96:skills/tdd-workflow/SKILL.md",
+    "tasks/tdd-workflow-batch1.md": "cta@8822baed308a74b5921e2a5be50394c1a4a8fc96:tasks/batch1/tdd-workflow.md",
+    "tasks/tdd-workflow-batch3.md": "cta@8822baed308a74b5921e2a5be50394c1a4a8fc96:tasks/batch3/tdd-workflow.md",
+    "tasks/tdd-workflow-batch4.md": "cta@8822baed308a74b5921e2a5be50394c1a4a8fc96:tasks/batch4/tdd-workflow.md",
+    "tasks/tdd-workflow-batch5.md": "cta@8822baed308a74b5921e2a5be50394c1a4a8fc96:tasks/batch5/tdd-workflow.md",
+    "tasks/tdd-workflow-batch7.md": "cta@8822baed308a74b5921e2a5be50394c1a4a8fc96:tasks/batch7/tdd-workflow.md",
+    "tasks/tdd-workflow-batch8.md": "cta@8822baed308a74b5921e2a5be50394c1a4a8fc96:tasks/batch8/tdd-workflow.md",
+    "tasks/tdd-workflow-batch9.md": "cta@8822baed308a74b5921e2a5be50394c1a4a8fc96:tasks/batch9/tdd-workflow.md",
+    "tasks/tdd-workflow-batch10.md": "cta@8822baed308a74b5921e2a5be50394c1a4a8fc96:tasks/batch10/tdd-workflow.md",
+    "tests/batch1/test_tdd_workflow.py": "cta@8822baed308a74b5921e2a5be50394c1a4a8fc96:tests/batch1/test_tdd_workflow.py",
+    "tests/batch3/test_tdd_workflow.py": "cta@8822baed308a74b5921e2a5be50394c1a4a8fc96:tests/batch3/test_tdd_workflow.py",
+    "tests/batch4/test_tdd_workflow.py": "cta@8822baed308a74b5921e2a5be50394c1a4a8fc96:tests/batch4/test_tdd_workflow.py",
+    "tests/batch5/test_tdd_workflow.py": "cta@8822baed308a74b5921e2a5be50394c1a4a8fc96:tests/batch5/test_tdd_workflow.py",
+    "tests/batch7/test_tdd_workflow.py": "cta@8822baed308a74b5921e2a5be50394c1a4a8fc96:tests/batch7/test_tdd_workflow.py",
+    "tests/batch8/test_tdd_workflow.py": "cta@8822baed308a74b5921e2a5be50394c1a4a8fc96:tests/batch8/test_tdd_workflow.py",
+    "tests/batch9/test_tdd_workflow.py": "cta@8822baed308a74b5921e2a5be50394c1a4a8fc96:tests/batch9/test_tdd_workflow.py",
+    "tests/batch10/test_tdd_workflow.py": "cta@8822baed308a74b5921e2a5be50394c1a4a8fc96:tests/batch10/test_tdd_workflow.py"
+  },
+  "license_verification": {
+    "cta_root_license": "MIT (see LICENSE)",
+    "skill_package_license": "UNVERIFIED — SKILL.md has no separate license file; rights not independently confirmed; do not assume cleared by CTA MIT",
+    "upstream_repo_license": "unverified for tdd-starters/python",
+    "note": "Only licenses explicitly seen are recorded; third-party skill rights are NOT treated as verified by the CTA MIT root license."
+  },
+  "file_hash_count": 18,
+  "task_families": {
+    "string_calculator": [
+      "tdd-workflow-batch3",
+      "tdd-workflow-batch4",
+      "tdd-workflow-batch5",
+      "tdd-workflow-batch7",
+      "tdd-workflow-batch8"
+    ],
+    "evaluate_expr": [
+      "tdd-workflow-batch9"
+    ],
+    "password_validator": [
+      "tdd-workflow-batch10"
+    ],
+    "coupon_calculator": [
+      "tdd-workflow-batch1"
+    ],
+    "note": "8 batches are NOT 8 independent tasks — batch3/4/5/7/8 are near-duplicate StringCalculator tasks. Evolution/holdout splits MUST be cut by family, never randomly by batch, to avoid leakage. Only ~4 distinct families exist; usable-task surface is limited. No split frozen yet; do not choose holdout by test outcome."
+  }
+}
